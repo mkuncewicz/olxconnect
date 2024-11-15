@@ -1,6 +1,8 @@
 package com.example.olxconnect.service;
 
 import com.example.olxconnect.entity.Token;
+import com.example.olxconnect.repository.TokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class OlxService {
     private static final String SCOPE = "read write v2";
     private static final String AUTH_URL = "https://www.olx.pl/oauth/authorize/";
     private static final String TOKEN_URL = "https://www.olx.pl/api/open/oauth/token";
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
     public String getAuthorizationUrl() {
         return String.format(
