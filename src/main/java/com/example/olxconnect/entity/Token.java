@@ -14,19 +14,24 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
-public class OlxAccount {
+@Getter
+public class Token {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String accessToken;
+    private String refreshToken;
+    private LocalDateTime expiration;
+    private String username;
 
-    private String password;
-
-    private String curAccToken;
-
-    private LocalDateTime createdAccToken;
+    public Token(String accessToken, String refreshToken, LocalDateTime expiration, String username) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.expiration = expiration;
+        this.username = username;
+    }
 }
+
