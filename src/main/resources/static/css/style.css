@@ -1,0 +1,117 @@
+body {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    font-family: Arial, sans-serif;
+    color: #333;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.styled-button {
+    background: linear-gradient(135deg, #ff8a65, #ff7043); /* Ciepły gradient dla kontrastu */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.styled-button:hover {
+    background: linear-gradient(135deg, #ff7043, #ff8a65);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.styled-button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.list-accounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    max-width: 1300px;
+    width: 90%;
+    margin: auto;
+    margin-top: 50px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.account {
+    width: 200px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    background: #ffffff; /* Białe tło dla kart */
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.account:hover {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.account img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 16px;
+}
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-info p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.status {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.status.connected {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status.expired {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}

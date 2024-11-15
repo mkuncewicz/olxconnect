@@ -9,8 +9,37 @@
 </head>
 <body>
 
-    <button onclick="window.location.href = '/auth/login';">Połącz Konto OLX</button>
+    <div class="button-container">
+        <button class="styled-button" onclick="window.location.href = '/auth/login';">Połącz Konto OLX</button>
+    </div>
 
+
+
+    <div class="list-accounts">
+        <div class="account">
+            <img src="icons8-male-user-100.png" alt="User Icon">
+            <div class="account-info">
+                <p>Admin 1</p>
+                <span class="status connected">Połączony</span>
+            </div>
+        </div>
+
+        <div class="account">
+            <img src="icons8-male-user-100.png" alt="User Icon">
+            <div class="account-info">
+                <p>Admin 2</p>
+                <span class="status expired">Token expired</span>
+            </div>
+        </div>
+
+        <div class="account">
+            <img src="icons8-male-user-100.png" alt="User Icon">
+            <div class="account-info">
+                <p>Admin 3</p>
+                <span class="status error">Error</span>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
