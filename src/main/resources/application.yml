@@ -27,3 +27,7 @@ olx:
   client_id: ${OLX_CLIENT_ID}
   client_secret: ${OLX_CLIENT_SECRET}
   redirect_uri: ${OLX_REDIRECT_URI}
+
+logging:
+  level:
+    root: DEBUG
