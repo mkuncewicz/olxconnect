@@ -28,6 +28,7 @@ public class OLXController {
 
     @GetMapping("/callback")
     public ResponseEntity<String> createAccessToken(@RequestParam("code") String code) {
-        return olxService.createAccessToken(code);
+        olxService.createAccessToken(code); // Wywołanie asynchroniczne
+        return ResponseEntity.ok("Proces uzyskiwania tokena został uruchomiony w tle.");
     }
 }

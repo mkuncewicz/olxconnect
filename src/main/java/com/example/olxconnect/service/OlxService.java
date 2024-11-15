@@ -5,12 +5,14 @@ import com.example.olxconnect.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class OlxService {
@@ -41,7 +43,8 @@ public class OlxService {
 
 
 
-    public ResponseEntity<String> createAccessToken(String code) {
+    @Async("taskExecutor")
+    public CompletableFuture<ResponseEntity<String>> createAccessToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -55,32 +58,39 @@ public class OlxService {
         body.put("scope", SCOPE);
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<Map> exchange = restTemplate.exchange(
-                TOKEN_URL,
-                HttpMethod.POST,
-                request,
-                Map.class
-        );
 
-        if (exchange.getStatusCode().is2xxSuccessful()) {
-            Map<String, Object> responseBody = exchange.getBody();
-            if (responseBody != null) {
-                String accessToken = (String) responseBody.get("access_token");
-                String refreshToken = (String) responseBody.get("refresh_token");
-                LocalDateTime expiration = LocalDateTime.now().plusSeconds((Integer) responseBody.get("expires_in"));
+        try {
+            ResponseEntity<Map> exchange = restTemplate.exchange(
+                    TOKEN_URL,
+                    HttpMethod.POST,
+                    request,
+                    Map.class
+            );
 
-                // Użycie accessToken do pobrania nazwy użytkownika
-                String username = fetchUsername(accessToken);
+            if (exchange.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> responseBody = exchange.getBody();
+                if (responseBody != null) {
+                    String accessToken = (String) responseBody.get("access_token");
+                    String refreshToken = (String) responseBody.get("refresh_token");
+                    LocalDateTime expiration = LocalDateTime.now().plusSeconds((Integer) responseBody.get("expires_in"));
 
-                // Zapis tokena i nazwy użytkownika w bazie danych
-                Token token = new Token(accessToken, refreshToken, expiration, username);
-                tokenRepository.save(token);
+                    // Użycie accessToken do pobrania nazwy użytkownika
+                    String username = fetchUsername(accessToken);
 
-                return ResponseEntity.ok("Token i nazwa użytkownika zostały zapisane.");
+                    // Zapis tokena i nazwy użytkownika w bazie danych
+                    Token token = new Token(accessToken, refreshToken, expiration, username);
+                    tokenRepository.save(token);
+
+                    return CompletableFuture.completedFuture(ResponseEntity.ok("Token i nazwa użytkownika zostały zapisane."));
+                }
             }
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nie udało się uzyskać tokena."));
+        } catch (Exception e) {
+            // Logowanie błędu
+            System.err.println("Błąd w createAccessToken: " + e.getMessage());
+            e.printStackTrace();
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Wystąpił błąd podczas generowania tokena."));
         }
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nie udało się uzyskać tokena.");
     }
 
 
