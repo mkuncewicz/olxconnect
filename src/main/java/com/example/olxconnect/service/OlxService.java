@@ -98,8 +98,6 @@ public class OlxService {
     }
 
     public String fetchUsername(String accessToken) {
-        logger.info("Pobieranie nazwy użytkownika z OLX API przy użyciu access tokena");
-
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -116,20 +114,25 @@ public class OlxService {
                     Map.class
             );
 
+            // Logowanie całej odpowiedzi
+            System.out.println("Odpowiedź z OLX API: " + response.getBody());
+
             if (response.getStatusCode().is2xxSuccessful()) {
                 Map<String, Object> body = response.getBody();
                 if (body != null && body.containsKey("name")) {
-                    String username = (String) body.get("name");
-                    logger.info("Pobrano nazwę użytkownika: {}", username);
-                    return username;
+                    return (String) body.get("name");
+                } else {
+                    throw new RuntimeException("Pole 'name' nie istnieje w odpowiedzi.");
                 }
+            } else {
+                throw new RuntimeException("Niepoprawny kod odpowiedzi: " + response.getStatusCode());
             }
-
-            logger.error("Nie udało się pobrać nazwy użytkownika. Status: {}", response.getStatusCode());
         } catch (Exception e) {
-            logger.error("Błąd podczas pobierania nazwy użytkownika: {}", e.getMessage(), e);
+            // Logowanie błędu
+            System.err.println("Błąd podczas pobierania nazwy użytkownika: " + e.getMessage());
+            throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.", e);
         }
-
-        throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.");
     }
+
+
 }
