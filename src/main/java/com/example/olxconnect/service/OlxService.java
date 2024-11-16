@@ -10,10 +10,10 @@ import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,10 +35,16 @@ public class OlxService {
     private static final String SCOPE = "read write v2";
     private static final String AUTH_URL = "https://www.olx.pl/oauth/authorize/";
     private static final String TOKEN_URL = "https://www.olx.pl/api/open/oauth/token";
+    private static final String USER_INFO_URL = "https://api.olx.pl/users/me";
 
     @Autowired
     private TokenRepository tokenRepository;
 
+    /**
+     * Tworzy URL autoryzacji do logowania przez OAuth2.
+     *
+     * @return URL autoryzacji
+     */
     public String getAuthorizationUrl() {
         return String.format(
                 "%s?client_id=%s&response_type=code&state=%s&scope=%s&redirect_uri=%s",
@@ -46,20 +52,24 @@ public class OlxService {
         );
     }
 
+    /**
+     * Tworzy token dostępu na podstawie kodu autoryzacyjnego.
+     *
+     * @param code Kod autoryzacyjny
+     * @return CompletableFuture z odpowiedzią
+     */
     @Async("taskExecutor")
     public CompletableFuture<ResponseEntity<String>> createAccessToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // Użycie LinkedMultiValueMap zamiast HashMap
         LinkedMultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
         body.add("redirect_uri", redirectUri);
         body.add("code", code);
-        body.add("scope", SCOPE);
 
         HttpEntity<LinkedMultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
@@ -78,25 +88,32 @@ public class OlxService {
                     String refreshToken = (String) responseBody.get("refresh_token");
                     LocalDateTime expiration = LocalDateTime.now().plusSeconds((Integer) responseBody.get("expires_in"));
 
-                    // Użycie accessToken do pobrania nazwy użytkownika
+                    // Pobranie nazwy użytkownika
                     String username = fetchUsername(accessToken);
 
-                    // Zapis tokena i nazwy użytkownika w bazie danych
+                    // Zapisanie tokena w bazie danych
                     Token token = new Token(accessToken, refreshToken, expiration, username);
                     tokenRepository.save(token);
 
-                    return CompletableFuture.completedFuture(ResponseEntity.ok("Token i nazwa użytkownika zostały zapisane."));
+                    return CompletableFuture.completedFuture(ResponseEntity.ok("Token i użytkownik zapisani."));
                 }
             }
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nie udało się uzyskać tokena."));
+        } catch (HttpClientErrorException e) {
+            logger.error("Błąd HTTP w createAccessToken: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Błąd HTTP: " + e.getMessage()));
         } catch (Exception e) {
-            // Logowanie błędu
-            System.err.println("Błąd w createAccessToken: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Ogólny błąd w createAccessToken: ", e);
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Wystąpił błąd podczas generowania tokena."));
         }
     }
 
+    /**
+     * Pobiera nazwę użytkownika na podstawie tokena dostępu.
+     *
+     * @param accessToken Token dostępu
+     * @return Nazwa użytkownika
+     */
     public String fetchUsername(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -104,35 +121,33 @@ public class OlxService {
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        String userInfoUrl = "https://api.olx.pl/users/me";
-
         try {
             ResponseEntity<Map> response = restTemplate.exchange(
-                    userInfoUrl,
+                    USER_INFO_URL,
                     HttpMethod.GET,
                     entity,
                     Map.class
             );
 
-            // Logowanie całej odpowiedzi
-            System.out.println("Odpowiedź z OLX API: " + response.getBody());
+            logger.info("Odpowiedź z OLX API: {}", response.getBody());
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 Map<String, Object> body = response.getBody();
                 if (body != null && body.containsKey("name")) {
                     return (String) body.get("name");
                 } else {
-                    throw new RuntimeException("Pole 'name' nie istnieje w odpowiedzi.");
+                    throw new RuntimeException("Pole 'name' nie istnieje w odpowiedzi: " + body);
                 }
             } else {
                 throw new RuntimeException("Niepoprawny kod odpowiedzi: " + response.getStatusCode());
             }
+        } catch (HttpClientErrorException e) {
+            logger.error("Błąd HTTP w fetchUsername: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Błąd HTTP podczas pobierania nazwy użytkownika: " + e.getMessage(), e);
         } catch (Exception e) {
-            // Logowanie błędu
-            System.err.println("Błąd podczas pobierani  a nazwy użytkownika: " + e.getMessage());
+            logger.error("Ogólny błąd w fetchUsername: ", e);
             throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.", e);
         }
     }
-
 
 }
