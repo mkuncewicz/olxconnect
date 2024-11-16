@@ -137,8 +137,17 @@ public class OlxService {
                 // Parsowanie JSON
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> body = objectMapper.readValue(response.getBody(), Map.class);
+
                 if (body.containsKey("name")) {
-                    return (String) body.get("name");
+                    String name = (String) body.get("name");
+
+                    // Jeśli pole "name" jest puste lub null, zwróć "email"
+                    if (name == null || name.isEmpty()) {
+                        logger.warn("Pole 'name' jest puste. Używam e-maila jako domyślnej wartości.");
+                        return (String) body.get("email");
+                    }
+
+                    return name;
                 } else {
                     throw new RuntimeException("Pole 'name' nie istnieje w odpowiedzi: " + body);
                 }
@@ -153,6 +162,7 @@ public class OlxService {
             throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.", e);
         }
     }
+
 
 
 }
