@@ -92,7 +92,8 @@ public class OlxService {
                     logger.debug("Token dostępu: {}", accessToken);
 
                     // Pobranie nazwy użytkownika
-                    String username = fetchUsername(accessToken);
+//                    String username = fetchUsername(accessToken);
+                    String username = "TestName1";
 
                     // Zapisanie tokena w bazie danych
                     Token token = new Token(accessToken, refreshToken, expiration, username);
