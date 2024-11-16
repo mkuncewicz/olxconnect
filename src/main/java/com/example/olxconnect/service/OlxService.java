@@ -2,6 +2,7 @@ package com.example.olxconnect.service;
 
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,12 +109,6 @@ public class OlxService {
         }
     }
 
-    /**
-     * Pobiera nazwę użytkownika na podstawie tokena dostępu.
-     *
-     * @param accessToken Token dostępu
-     * @return Nazwa użytkownika
-     */
     public String fetchUsername(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -121,19 +116,24 @@ public class OlxService {
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
+        String userInfoUrl = "https://api.olx.pl/users/me";
+
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(
-                    USER_INFO_URL,
+            ResponseEntity<String> response = restTemplate.exchange(
+                    userInfoUrl,
                     HttpMethod.GET,
                     entity,
-                    Map.class
+                    String.class
             );
 
-            logger.info("Odpowiedź z OLX API: {}", response.getBody());
+            // Logowanie całej odpowiedzi
+            logger.info("Odpowiedź HTTP: {}", response);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                Map<String, Object> body = response.getBody();
-                if (body != null && body.containsKey("name")) {
+                // Parsowanie JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> body = objectMapper.readValue(response.getBody(), Map.class);
+                if (body.containsKey("name")) {
                     return (String) body.get("name");
                 } else {
                     throw new RuntimeException("Pole 'name' nie istnieje w odpowiedzi: " + body);
@@ -149,5 +149,6 @@ public class OlxService {
             throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.", e);
         }
     }
+
 
 }
