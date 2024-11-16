@@ -129,7 +129,7 @@ public class OlxService {
             }
         } catch (Exception e) {
             // Logowanie błędu
-            System.err.println("Błąd podczas pobierania nazwy użytkownika: " + e.getMessage());
+            System.err.println("Błąd podczas pobierani  a nazwy użytkownika: " + e.getMessage());
             throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.", e);
         }
     }
