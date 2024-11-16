@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
@@ -47,21 +48,20 @@ public class OlxService {
 
     @Async("taskExecutor")
     public CompletableFuture<ResponseEntity<String>> createAccessToken(String code) {
-        logger.info("Rozpoczynam tworzenie access tokena dla kodu: {}", code);
-
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        Map<String, String> body = new HashMap<>();
-        body.put("grant_type", "authorization_code");
-        body.put("client_id", clientId);
-        body.put("client_secret", clientSecret);
-        body.put("redirect_uri", redirectUri);
-        body.put("code", code);
-        body.put("scope", SCOPE);
+        // Użycie LinkedMultiValueMap zamiast HashMap
+        LinkedMultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "authorization_code");
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+        body.add("redirect_uri", redirectUri);
+        body.add("code", code);
+        body.add("scope", SCOPE);
 
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        HttpEntity<LinkedMultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<Map> exchange = restTemplate.exchange(
@@ -72,9 +72,7 @@ public class OlxService {
             );
 
             if (exchange.getStatusCode().is2xxSuccessful()) {
-                logger.info("Pomyślnie otrzymano odpowiedź od OLX API");
                 Map<String, Object> responseBody = exchange.getBody();
-
                 if (responseBody != null) {
                     String accessToken = (String) responseBody.get("access_token");
                     String refreshToken = (String) responseBody.get("refresh_token");
@@ -87,16 +85,14 @@ public class OlxService {
                     Token token = new Token(accessToken, refreshToken, expiration, username);
                     tokenRepository.save(token);
 
-                    logger.info("Token i nazwa użytkownika zostały pomyślnie zapisane: {}", username);
                     return CompletableFuture.completedFuture(ResponseEntity.ok("Token i nazwa użytkownika zostały zapisane."));
                 }
-            } else {
-                logger.error("Nie udało się uzyskać access tokena. Status: {}", exchange.getStatusCode());
             }
-
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nie udało się uzyskać tokena."));
         } catch (Exception e) {
-            logger.error("Błąd podczas generowania tokena: {}", e.getMessage(), e);
+            // Logowanie błędu
+            System.err.println("Błąd w createAccessToken: " + e.getMessage());
+            e.printStackTrace();
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Wystąpił błąd podczas generowania tokena."));
         }
     }
