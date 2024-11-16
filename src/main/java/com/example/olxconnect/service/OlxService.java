@@ -116,7 +116,7 @@ public class OlxService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
-//        headers.set("Authorization", accessToken);
+        headers.set("Version", "2");
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
