@@ -89,6 +89,8 @@ public class OlxService {
                     String refreshToken = (String) responseBody.get("refresh_token");
                     LocalDateTime expiration = LocalDateTime.now().plusSeconds((Integer) responseBody.get("expires_in"));
 
+                    logger.debug("Token dostępu: {}", accessToken);
+
                     // Pobranie nazwy użytkownika
                     String username = fetchUsername(accessToken);
 
