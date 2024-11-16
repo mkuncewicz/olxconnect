@@ -2,6 +2,8 @@ package com.example.olxconnect.service;
 
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -16,6 +18,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class OlxService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OlxService.class);
 
     @Value("${olx.client_id}")
     private String clientId;
@@ -41,10 +45,10 @@ public class OlxService {
         );
     }
 
-
-
     @Async("taskExecutor")
     public CompletableFuture<ResponseEntity<String>> createAccessToken(String code) {
+        logger.info("Rozpoczynam tworzenie access tokena dla kodu: {}", code);
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -68,7 +72,9 @@ public class OlxService {
             );
 
             if (exchange.getStatusCode().is2xxSuccessful()) {
+                logger.info("Pomyślnie otrzymano odpowiedź od OLX API");
                 Map<String, Object> responseBody = exchange.getBody();
+
                 if (responseBody != null) {
                     String accessToken = (String) responseBody.get("access_token");
                     String refreshToken = (String) responseBody.get("refresh_token");
@@ -81,42 +87,51 @@ public class OlxService {
                     Token token = new Token(accessToken, refreshToken, expiration, username);
                     tokenRepository.save(token);
 
+                    logger.info("Token i nazwa użytkownika zostały pomyślnie zapisane: {}", username);
                     return CompletableFuture.completedFuture(ResponseEntity.ok("Token i nazwa użytkownika zostały zapisane."));
                 }
+            } else {
+                logger.error("Nie udało się uzyskać access tokena. Status: {}", exchange.getStatusCode());
             }
+
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nie udało się uzyskać tokena."));
         } catch (Exception e) {
-            // Logowanie błędu
-            System.err.println("Błąd w createAccessToken: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Błąd podczas generowania tokena: {}", e.getMessage(), e);
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Wystąpił błąd podczas generowania tokena."));
         }
     }
 
-
-
     public String fetchUsername(String accessToken) {
+        logger.info("Pobieranie nazwy użytkownika z OLX API przy użyciu access tokena");
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        String userInfoUrl = "https://api.olx.pl/users/me"; // URL endpointa
+        String userInfoUrl = "https://api.olx.pl/users/me";
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-                userInfoUrl,
-                HttpMethod.GET,
-                entity,
-                Map.class
-        );
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    userInfoUrl,
+                    HttpMethod.GET,
+                    entity,
+                    Map.class
+            );
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            // Pobranie nazwy użytkownika z odpowiedzi
-            Map<String, Object> body = response.getBody();
-            if (body != null && body.containsKey("name")) {
-                return (String) body.get("name");
+            if (response.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> body = response.getBody();
+                if (body != null && body.containsKey("name")) {
+                    String username = (String) body.get("name");
+                    logger.info("Pobrano nazwę użytkownika: {}", username);
+                    return username;
+                }
             }
+
+            logger.error("Nie udało się pobrać nazwy użytkownika. Status: {}", response.getStatusCode());
+        } catch (Exception e) {
+            logger.error("Błąd podczas pobierania nazwy użytkownika: {}", e.getMessage(), e);
         }
 
         throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.");
