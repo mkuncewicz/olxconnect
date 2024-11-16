@@ -92,8 +92,8 @@ public class OlxService {
                     logger.debug("Token dostępu: {}", accessToken);
 
                     // Pobranie nazwy użytkownika
-                    String username = fetchUsername(accessToken);
-//                    String username = "TestName1";
+//                    String username = fetchUsername(accessToken);
+                    String username = "TestName1";
 
                     // Zapisanie tokena w bazie danych
                     Token token = new Token(accessToken, refreshToken, expiration, username);
@@ -115,12 +115,12 @@ public class OlxService {
     public String fetchUsername(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + accessToken);
-        headers.set("Authorization", accessToken);
+        headers.set("Authorization", "Bearer " + accessToken);
+//        headers.set("Authorization", accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        String userInfoUrl = "https://api.olx.pl/users/me";
+        String userInfoUrl = "https://www.olx.pl/api/partner/users/me";
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
