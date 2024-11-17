@@ -2,6 +2,7 @@ package com.example.olxconnect.controller;
 
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,7 @@ import java.util.List;
 @Controller
 public class HomeController {
 
+    @Autowired
     private TokenRepository tokenRepository;
 
     @GetMapping("/")
