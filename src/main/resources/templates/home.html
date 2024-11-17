@@ -16,27 +16,13 @@
 
 
     <div class="list-accounts">
-        <div class="account">
-            <img src="/images/icons8-male-user-100.png" alt="User Icon">
-            <div class="account-info">
-                <p>Admin 1</p>
-                <span class="status connected">Połączony</span>
-            </div>
-        </div>
 
-        <div class="account">
+        <div class="account" th:each="token : ${tokenList}">
             <img src="/images/icons8-male-user-100.png" alt="User Icon">
             <div class="account-info">
-                <p>Admin 2</p>
-                <span class="status expired">Token expired</span>
-            </div>
-        </div>
-
-        <div class="account">
-            <img src="/images/icons8-male-user-100.png" alt="User Icon">
-            <div class="account-info">
-                <p>Admin 3</p>
-                <span class="status error">Error</span>
+                <p th:text="${token.username}">Nazwa użytkownika</p>
+                <span class="status connected" th:if="${token.expiration.isAfter(T(java.time.LocalDateTime).now())}">Połączony</span>
+                <span class="status expired" th:if="${token.expiration.isBefore(T(java.time.LocalDateTime).now())}">Token expired</span>
             </div>
         </div>
     </div>
