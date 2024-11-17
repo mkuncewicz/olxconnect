@@ -138,21 +138,24 @@ public class OlxService {
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> body = objectMapper.readValue(response.getBody(), Map.class);
 
-                if (body.containsKey("name")) {
-                    String name = (String) body.get("name");
-
-                    return name;
-
-                } else if (body.containsKey("email")) {
-
-                    String email = (String) body.get("email");
-
-                    return email;
-
-                }else {
-                    throw new RuntimeException("Pole 'name' oraz 'email' nie istnieje w odpowiedzi: " + body);
+                // Pobranie zagnieżdżonego pola "data"
+                Map<String, Object> data = (Map<String, Object>) body.get("data");
+                if (data == null) {
+                    throw new RuntimeException("Pole 'data' nie istnieje w odpowiedzi: " + body);
                 }
 
+                // Pobranie pola "name" lub "email"
+                String name = (String) data.get("name");
+                if (name != null && !name.isEmpty()) {
+                    return name;
+                }
+
+                String email = (String) data.get("email");
+                if (email != null && !email.isEmpty()) {
+                    return email;
+                }
+
+                throw new RuntimeException("Pole 'name' oraz 'email' nie istnieje w odpowiedzi: " + data);
 
             } else {
                 throw new RuntimeException("Niepoprawny kod odpowiedzi: " + response.getStatusCode());
@@ -165,6 +168,7 @@ public class OlxService {
             throw new RuntimeException("Nie udało się pobrać nazwy użytkownika z OLX API.", e);
         }
     }
+
 
 
 
