@@ -3,6 +3,7 @@ package com.example.olxconnect.service;
 import com.example.olxconnect.dto.ThreadResponse;
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,16 +176,33 @@ public class OlxService {
         String threadsUrl = "https://www.olx.pl/api/partner/threads";
 
         try {
-            ResponseEntity<List<ThreadResponse>> response = restTemplate.exchange(
+            ResponseEntity<String> response = restTemplate.exchange(
                     threadsUrl,
                     HttpMethod.GET,
                     entity,
-                    new ParameterizedTypeReference<List<ThreadResponse>>() {}
+                    String.class
             );
 
-            return response.getBody(); // Zwróć listę wątków
+            // Logowanie odpowiedzi dla debugowania
+            logger.info("Odpowiedź z OLX Threads API: {}", response.getBody());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), Map.class);
+
+            // Zakładamy, że odpowiedź jest opakowana w klucz "data", jeśli nie, usuń ten krok
+            List<ThreadResponse> threads = objectMapper.convertValue(
+                    responseBody.get("data"),
+                    new TypeReference<List<ThreadResponse>>() {}
+            );
+
+            return threads;
+
         } catch (HttpClientErrorException e) {
-            throw new RuntimeException("Błąd HTTP: " + e.getMessage(), e);
+            logger.error("Błąd HTTP w fetchThreads: {}", e.getResponseBodyAsString());
+            throw new RuntimeException("Błąd HTTP podczas pobierania wątków: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Ogólny błąd w fetchThreads: ", e);
+            throw new RuntimeException("Nie udało się pobrać wątków z OLX API.", e);
         }
     }
 
