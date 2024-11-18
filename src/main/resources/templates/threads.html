@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista Wątków</title>
+</head>
+<body>
+
+<h1>Wątki użytkownika: <span th:text="${username}"></span></h1>
+
+  <div class="threads-list">
+    <!-- Sprawdzenie, czy lista jest pusta -->
+    <div th:if="${threads == null or #lists.isEmpty(threads)}">
+      <p>Brak dostępnych wątków.</p>
+    </div>
+
+     <!-- Iteracja po wątkach -->
+    <div th:each="thread : ${threads}">
+      <div class="thread">
+        <p>ID wątku: <span th:text="${thread.id}"></span></p>
+        <p>Ogłoszenie ID: <span th:text="${thread.advertId}"></span></p>
+        <p>Interlokutor ID: <span th:text="${thread.interlocutorId}"></span></p>
+        <p>Utworzono: <span th:text="${thread.createdAt}"></span></p>
+        <p>Ulubiony: <span th:text="${thread.isFavourite ? 'Tak' : 'Nie'}"></span></p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

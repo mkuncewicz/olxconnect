@@ -1,5 +1,6 @@
 package com.example.olxconnect.service;
 
+import com.example.olxconnect.dto.ThreadResponse;
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,15 +40,13 @@ public class OlxService {
     private static final String AUTH_URL = "https://www.olx.pl/oauth/authorize/";
     private static final String TOKEN_URL = "https://www.olx.pl/api/open/oauth/token";
     private static final String USER_INFO_URL = "https://api.olx.pl/users/me";
+    private static final String THREADS_URL = "https://www.olx.pl/api/partner/threads";
+
 
     @Autowired
     private TokenRepository tokenRepository;
 
-    /**
-     * Tworzy URL autoryzacji do logowania przez OAuth2.
-     *
-     * @return URL autoryzacji
-     */
+
     public String getAuthorizationUrl() {
         return String.format(
                 "%s?client_id=%s&response_type=code&state=%s&scope=%s&redirect_uri=%s",
@@ -53,12 +54,6 @@ public class OlxService {
         );
     }
 
-    /**
-     * Tworzy token dostępu na podstawie kodu autoryzacyjnego.
-     *
-     * @param code Kod autoryzacyjny
-     * @return CompletableFuture z odpowiedzią
-     */
     @Async("taskExecutor")
     public CompletableFuture<ResponseEntity<String>> createAccessToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
@@ -170,6 +165,27 @@ public class OlxService {
     }
 
 
+    public List<ThreadResponse> fetchThreads(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Version", "2");
 
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        String threadsUrl = "https://www.olx.pl/api/partner/threads";
+
+        try {
+            ResponseEntity<List<ThreadResponse>> response = restTemplate.exchange(
+                    threadsUrl,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<List<ThreadResponse>>() {}
+            );
+
+            return response.getBody(); // Zwróć listę wątków
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Błąd HTTP: " + e.getMessage(), e);
+        }
+    }
 
 }
