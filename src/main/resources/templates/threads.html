@@ -19,10 +19,8 @@
     <div th:each="thread : ${threads}">
       <div class="thread">
         <p>ID wątku: <span th:text="${thread.id}"></span></p>
-        <p>Ogłoszenie ID: <span th:text="${thread.advertId}"></span></p>
-        <p>Interlokutor ID: <span th:text="${thread.interlocutorId}"></span></p>
-        <p>Utworzono: <span th:text="${thread.createdAt}"></span></p>
-        <p>Ulubiony: <span th:text="${thread.isFavourite ? 'Tak' : 'Nie'}"></span></p>
+        <p>Długość wątku: <span th:text="${thread.totalCount}"></span></p>
+
       </div>
     </div>
   </div>
