@@ -1,6 +1,6 @@
 package com.example.olxconnect.controller;
 
-import com.example.olxconnect.dto.ThreadResponse;
+import com.example.olxconnect.dto.ThreadResponseDto;
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
 import com.example.olxconnect.service.OlxService;
@@ -44,7 +44,7 @@ public class ThreadController {
 
         // Pobierz wątki użytkownika za pomocą OLX API
         try {
-            List<ThreadResponse> threads = olxService.fetchThreads(token.getAccessToken());
+            List<ThreadResponseDto> threads = olxService.fetchThreads(token.getAccessToken());
             logger.info("Pobrano {} wątków dla użytkownika: {}", threads.size(), token.getUsername());
 
             model.addAttribute("username", token.getUsername());

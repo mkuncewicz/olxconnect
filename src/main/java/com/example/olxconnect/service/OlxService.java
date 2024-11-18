@@ -1,6 +1,6 @@
 package com.example.olxconnect.service;
 
-import com.example.olxconnect.dto.ThreadResponse;
+import com.example.olxconnect.dto.ThreadResponseDto;
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -166,7 +165,7 @@ public class OlxService {
     }
 
 
-    public List<ThreadResponse> fetchThreads(String accessToken) {
+    public List<ThreadResponseDto> fetchThreads(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -190,9 +189,9 @@ public class OlxService {
             Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), Map.class);
 
             // Zakładamy, że odpowiedź jest opakowana w klucz "data", jeśli nie, usuń ten krok
-            List<ThreadResponse> threads = objectMapper.convertValue(
+            List<ThreadResponseDto> threads = objectMapper.convertValue(
                     responseBody.get("data"),
-                    new TypeReference<List<ThreadResponse>>() {}
+                    new TypeReference<List<ThreadResponseDto>>() {}
             );
 
             return threads;
@@ -205,5 +204,6 @@ public class OlxService {
             throw new RuntimeException("Nie udało się pobrać wątków z OLX API.", e);
         }
     }
+
 
 }

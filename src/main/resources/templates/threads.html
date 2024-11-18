@@ -15,6 +15,8 @@
       <p>Brak dostępnych wątków.</p>
     </div>
 
+    <div><span th:text="${threads.size()}"></span></div>
+
      <!-- Iteracja po wątkach -->
     <div th:each="thread : ${threads}">
       <div class="thread">

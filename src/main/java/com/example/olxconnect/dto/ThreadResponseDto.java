@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ThreadResponse {
+public class ThreadResponseDto {
 
     private Long id;
 
