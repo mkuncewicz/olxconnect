@@ -9,32 +9,24 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
-public class ThreadResponse {
+@Getter
+public class Advert {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    private Token owner;
-
-    @Column
-    private Long threadId;
+    @JoinColumn(name = "token_id", nullable = false) // Klucz obcy do encji Token
+    private Token token;
 
     @Column
     private Long advertId;
 
     @Column
-    private Long interlocutorId;
+    private String url;
 
     @Column
-    private Integer totalCount;
-
-    @Column
-    private Integer unreadCount;
-
-
+    private String title;
 }

@@ -4,13 +4,13 @@ import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
 public class HomeController {
 
     @Autowired

@@ -10,4 +10,6 @@ import java.util.List;
 public interface ThreadResponseRepository extends JpaRepository<ThreadResponse,Long> {
 
     List<ThreadResponse> findAllByOwnerId(Long ownerId);
+
+    void deleteAllByOwnerId(Long ownerId);
 }

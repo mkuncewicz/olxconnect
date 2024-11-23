@@ -1,7 +1,10 @@
 package com.example.olxconnect.service;
 
 import com.example.olxconnect.dto.ThreadResponseDto;
+import com.example.olxconnect.entity.ThreadResponse;
 import com.example.olxconnect.entity.Token;
+import com.example.olxconnect.mail.NewMessageMail;
+import com.example.olxconnect.mapper.ThreadMapper;
 import com.example.olxconnect.repository.TokenRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,12 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -46,6 +51,20 @@ public class OlxService {
     @Autowired
     private TokenRepository tokenRepository;
 
+    @Autowired
+    private ThreadResponseService threadResponseService;
+
+    @Autowired
+    private AdvertService advertService;
+
+    @Autowired
+    private ThreadMapper threadMapper;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private EmailService emailService;
 
     public String getAuthorizationUrl() {
         return String.format(
@@ -205,5 +224,100 @@ public class OlxService {
         }
     }
 
+
+    public List<NewMessageMail> isNewMessage() {
+        List<Token> tokenList = tokenRepository.findAll(); // Pobierz wszystkie tokeny z bazy danych
+        List<NewMessageMail> newMessagesList = new ArrayList<>(); // Lista nowych wiadomości
+
+        for (Token token : tokenList) {
+            String accessToken = token.getAccessToken(); // Pobierz access token użytkownika
+            List<ThreadResponse> tokenThreadsDB = threadResponseService.findAllByOwner(token); // Pobierz wątki z bazy dla tego tokena
+            List<ThreadResponseDto> threadsFromAPI = fetchThreads(accessToken); // Pobierz wątki z OLX API
+
+            for (ThreadResponseDto threadDto : threadsFromAPI) {
+                // Szukaj odpowiedniego wątku w bazie danych
+                ThreadResponse matchingThread = tokenThreadsDB.stream()
+                        .filter(t -> t.getThreadId().equals(threadDto.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (matchingThread == null) {
+                    // Jeśli wątek nie istnieje w bazie, zapisz nowy wątek
+                    ThreadResponse newThread = threadMapper.toEntity(threadDto, token);
+                    threadResponseService.save(newThread); // Użyj ThreadResponseService do zapisu
+
+                    Long advertId = newThread.getAdvertId();
+                    String advertTitle = advertService.getTitleAdvert(advertId);
+
+                    // Dodaj informację o nowej wiadomości
+                    newMessagesList.add(new NewMessageMail(
+                            token.getUsername(),
+                            advertTitle,
+                            threadDto.getCreatedAt()
+                    ));
+                } else {
+                    boolean isUpdated = false;
+
+                    // Jeśli liczba wiadomości zmieniła się
+                    if (!matchingThread.getUnreadCount().equals(threadDto.getUnreadCount())) {
+                        matchingThread.setUnreadCount(threadDto.getUnreadCount());
+                        isUpdated = true;
+                    }
+
+                    if (!matchingThread.getTotalCount().equals(threadDto.getTotalCount())) {
+                        matchingThread.setTotalCount(threadDto.getTotalCount());
+                        isUpdated = true;
+                    }
+
+                    if (isUpdated) {
+                        threadResponseService.save(matchingThread); // Nadpisz istniejący wątek w bazie
+
+                        Long advertId = matchingThread.getAdvertId();
+                        String advertTitle = advertService.getTitleAdvert(advertId);
+
+
+                        newMessagesList.add(new NewMessageMail(
+                                token.getUsername(),
+                                advertTitle, // Możesz pobrać tytuł ogłoszenia, jeśli jest dostępny
+                                threadDto.getCreatedAt()
+                        ));
+                    }
+
+                    // Jeśli liczba nieprzeczytanych wiadomości zmniejszyła się
+                    if (matchingThread.getUnreadCount() > threadDto.getUnreadCount()) {
+                        matchingThread.setUnreadCount(threadDto.getUnreadCount());
+                        threadResponseService.save(matchingThread); // Nadpisz liczbę nieprzeczytanych wiadomości
+                    }
+                }
+            }
+        }
+
+        return newMessagesList; // Zwróć listę nowych wiadomości
+    }
+
+
+    @Scheduled(fixedRate = 60000) // Uruchamianie co 60 sekund
+    public void checkAndNotifyNewMessages() {
+        List<NewMessageMail> newMessagesList = isNewMessage(); // Pobranie nowych wiadomości/wątków
+
+        for (NewMessageMail newMessage : newMessagesList) {
+            // Tworzenie treści wiadomości e-mail
+            String emailContent = String.format(
+                    "Konto: %s\nOgłoszenie: %s\nCzas: %s",
+                    newMessage.getAccount(),
+                    newMessage.getAdvertTitle(),
+                    newMessage.getTime()
+            );
+
+            // Wyślij e-mail na określony adres (tu zakładamy, że użytkownik ma powiązany adres e-mail)
+            emailService.sendSimpleEmail(
+                    "kuncewicz.mateusz@gmail.com", // W rzeczywistości adres może być powiązany z kontem
+                    "Nowa wiadomość w OLX",
+                    emailContent
+            );
+
+            logger.info("Wysłano e-mail do użytkownika: {}", newMessage.getAccount());
+        }
+    }
 
 }

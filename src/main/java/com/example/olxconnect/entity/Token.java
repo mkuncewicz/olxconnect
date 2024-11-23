@@ -26,6 +26,9 @@ public class Token {
     private LocalDateTime expiration;
     private String username;
 
+    @OneToMany(mappedBy = "token", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Advert> adverts = new ArrayList<>(); // Lista reklam przypisanych do tego tokena
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ThreadResponse> threads = new ArrayList<>();
 
