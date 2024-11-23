@@ -13,7 +13,7 @@ public class EmailController {
 
     @GetMapping("/send-email")
     public String sendEmail() {
-        emailService.sendSimpleEmail("", "Testowy temat", "Treść testowego e-maila.");
+        emailService.sendSimpleEmail("kuncewicz.mateusz@gmail.com", "Testowy temat", "Treść testowego e-maila.");
         return "E-mail został wysłany!";
     }
 }
