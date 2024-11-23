@@ -298,6 +298,8 @@ public class OlxService {
 
     @Scheduled(fixedRate = 60000) // Uruchamianie co 60 sekund
     public void checkAndNotifyNewMessages() {
+        logger.info("checkAndNotifyNewMessages użyto");
+
         List<NewMessageMail> newMessagesList = isNewMessage(); // Pobranie nowych wiadomości/wątków
 
         for (NewMessageMail newMessage : newMessagesList) {
