@@ -31,3 +31,4 @@ olx:
 logging:
   level:
     root: DEBUG
+    org.springframework.mail: DEBUG
