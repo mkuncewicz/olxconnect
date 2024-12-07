@@ -302,6 +302,8 @@ public class OlxService {
 
         List<NewMessageMail> newMessagesList = isNewMessage(); // Pobranie nowych wiadomości/wątków
 
+        if (newMessagesList.isEmpty()) logger.info("Nie ma nowej wiadomosci");
+
         for (NewMessageMail newMessage : newMessagesList) {
             // Tworzenie treści wiadomości e-mail
             String emailContent = String.format(
