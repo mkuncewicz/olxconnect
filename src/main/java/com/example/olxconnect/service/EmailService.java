@@ -13,22 +13,18 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
-    private String fromAddress;
-
     public void sendSimpleEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromAddress); // Ustaw nadawcę
-        message.setTo(to);           // Ustaw odbiorcę
-        message.setSubject(subject); // Ustaw temat
-        message.setText(text);       // Ustaw treść
-
         try {
-            mailSender.send(message); // Wyślij e-mail
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("powiadomienia@you2.pl");
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            mailSender.send(message);
             System.out.println("E-mail został wysłany do: " + to);
-        } catch (MailException e) {
+        } catch (Exception e) {
             System.err.println("Błąd podczas wysyłania e-maila: " + e.getMessage());
-            throw new RuntimeException("Nie udało się wysłać e-maila.", e);
         }
     }
 }
+
