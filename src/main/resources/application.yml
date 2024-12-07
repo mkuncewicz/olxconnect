@@ -3,7 +3,7 @@ spring:
     name: olxconnect
 
   mail:
-    host: smtp.poczta.onet.pl
+    host: smtp.dpoczta.pl
     port: 587
     username: ${SPRING_MAIL_USERNAME}
     password: ${SPRING_MAIL_PASSWORD}

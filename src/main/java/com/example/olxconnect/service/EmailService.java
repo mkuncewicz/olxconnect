@@ -14,7 +14,7 @@ public class EmailService {
     public void sendSimpleEmail(String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("olxconnector");
+            message.setFrom("powiadomienia@you2.pl");
             message.setTo(to);
             message.setSubject(subject);
             message.setText(text);
