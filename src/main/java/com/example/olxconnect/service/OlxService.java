@@ -300,28 +300,39 @@ public class OlxService {
     public void checkAndNotifyNewMessages() {
         logger.info("checkAndNotifyNewMessages użyto");
 
-        List<NewMessageMail> newMessagesList = isNewMessage(); // Pobranie nowych wiadomości/wątków
+        // Pobranie nowych wiadomości
+        List<NewMessageMail> newMessagesList = isNewMessage();
 
-        if (newMessagesList.isEmpty()) logger.info("Nie ma nowej wiadomosci");
+        if (newMessagesList.isEmpty()) {
+            logger.info("Nie ma nowej wiadomości");
+            return;
+        }
+
+        // Tworzenie treści jednego e-maila zawierającego wszystkie nowe wiadomości
+        StringBuilder emailContent = new StringBuilder();
+        emailContent.append("Masz nowe wiadomości w OLX:\n\n");
 
         for (NewMessageMail newMessage : newMessagesList) {
-            // Tworzenie treści wiadomości e-mail
-            String emailContent = String.format(
-                    "Konto: %s\nOgłoszenie: %s\nCzas: %s",
+            emailContent.append(String.format(
+                    "Konto: %s\nOgłoszenie: %s\n\n",
                     newMessage.getAccount(),
-                    newMessage.getAdvertTitle(),
-                    newMessage.getTime()
-            );
+                    newMessage.getAdvertTitle()
+            ));
+        }
 
-            // Wyślij e-mail na określony adres (tu zakładamy, że użytkownik ma powiązany adres e-mail)
+        // Wysyłanie jednego e-maila z całą zawartością listy
+        try {
             emailService.sendSimpleEmail(
-                    "kuncewicz.mateusz@gmail.com", // W rzeczywistości adres może być powiązany z kontem
-                    "Nowa wiadomość w OLX",
-                    emailContent
+                    "kuncewicz.mateusz@gmail.com", // Statyczny adres e-mail (możesz zamienić na dynamiczny)
+                    "Nowe wiadomości w OLX",
+                    emailContent.toString()
             );
 
-            logger.info("Wysłano e-mail do użytkownika: {}", newMessage.getAccount());
+            logger.info("Wysłano zbiorczy e-mail z informacjami o nowych wiadomościach.");
+        } catch (Exception e) {
+            logger.error("Błąd podczas wysyłania zbiorczego e-maila: {}", e.getMessage());
         }
     }
+
 
 }
