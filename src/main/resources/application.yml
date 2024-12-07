@@ -34,3 +34,4 @@ logging:
     root: DEBUG
     org.springframework.mail: TRACE
     org.springframework.boot.autoconfigure.mail: TRACE
+
