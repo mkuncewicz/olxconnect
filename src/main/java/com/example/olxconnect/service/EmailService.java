@@ -1,47 +1,62 @@
 package com.example.olxconnect.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${mailersend.api-key}")
+    private String mailersendApiKey;
 
-    // Użyj wartości z konfiguracji, jeśli istnieje (plik application.yml)
-    @Value("${spring.mail.username}")
-    private String fromAddress;
+    private static final String MAILERSEND_API_URL = "https://api.mailersend.com/v1/email";
 
     /**
-     * Wysyła prosty e-mail z podanym tematem i treścią.
+     * Wysyła e-mail za pomocą Mailersend API.
      *
      * @param to      Adres odbiorcy
      * @param subject Temat wiadomości
      * @param text    Treść wiadomości
      */
     public void sendSimpleEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
+        // Tworzenie nagłówków HTTP
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(mailersendApiKey);
 
-        // Ustaw nadawcę na podstawie konfiguracji
-        if (fromAddress != null && !fromAddress.isEmpty()) {
-            message.setFrom(fromAddress);
-        } else {
-            throw new IllegalStateException("Adres nadawcy (from) nie został skonfigurowany!");
-        }
+        // Tworzenie ciała żądania
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("from", Map.of("email", "powiadomienia@stanislawnowak.pl", "name", "Stanislaw Nowak"));
+        requestBody.put("to", new Object[]{Map.of("email", to, "name", to)});
+        requestBody.put("subject", subject);
+        requestBody.put("text", text);
 
+        // Konfiguracja żądania
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+        // Wysyłanie żądania HTTP POST
+        RestTemplate restTemplate = new RestTemplate();
         try {
-            mailSender.send(message);
-            System.out.println("E-mail wysłany do: " + to);
-        } catch (MailException e) {
-            System.err.println("Błąd podczas wysyłania e-maila: " + e.getMessage());
+            ResponseEntity<String> response = restTemplate.exchange(
+                    MAILERSEND_API_URL,
+                    HttpMethod.POST,
+                    request,
+                    String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("E-mail wysłany do: " + to);
+            } else {
+                System.err.println("Błąd podczas wysyłania e-maila. Status: " + response.getStatusCode());
+                System.err.println("Treść odpowiedzi: " + response.getBody());
+            }
+        } catch (Exception e) {
+            System.err.println("Wystąpił błąd podczas wysyłania e-maila: " + e.getMessage());
             throw new RuntimeException("Nie udało się wysłać e-maila.", e);
         }
     }
