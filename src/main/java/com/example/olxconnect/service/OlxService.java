@@ -306,6 +306,8 @@ public class OlxService {
         if (newMessagesList.isEmpty()) {
             logger.info("Nie ma nowej wiadomości");
             return;
+        }else {
+            logger.info("Jest nowa wiadomość");
         }
 
         // Tworzenie treści jednego e-maila zawierającego wszystkie nowe wiadomości
