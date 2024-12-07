@@ -5,6 +5,8 @@ import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.AdvertRepository;
 import com.example.olxconnect.repository.TokenRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +22,8 @@ import java.util.Optional;
 
 @Service
 public class AdvertService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdvertService.class);
 
     @Autowired
     private AdvertRepository advertRepository;
@@ -39,6 +43,8 @@ public class AdvertService {
     public void updateAdverts() {
         // Pobranie wszystkich tokenów z bazy danych
         List<Token> tokens = tokenRepository.findAll();
+
+        logger.info("Update Adverts - used");
 
         for (Token token : tokens) {
             String accessToken = token.getAccessToken();
