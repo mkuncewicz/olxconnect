@@ -24,9 +24,6 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
-mailersend:
-  api-key: ${MAILERSEND_API_KEY}
-
 olx:
   client_id: ${OLX_CLIENT_ID}
   client_secret: ${OLX_CLIENT_SECRET}
