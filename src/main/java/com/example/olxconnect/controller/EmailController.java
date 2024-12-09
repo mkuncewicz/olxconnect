@@ -17,7 +17,7 @@ public class EmailController {
     private EmailService emailService;
 
     /**
-     * Endpoint do wysyłania wiadomości e-mail.
+     * Endpoint do wysyłania wiadomości e-mail z domyślnym odbiorcą.
      *
      * @param to      adres odbiorcy (opcjonalny, domyślnie do testu)
      * @param subject temat wiadomości (opcjonalny, domyślnie "Testowy temat")
@@ -37,6 +37,33 @@ public class EmailController {
                     subject,
                     text
             );
+            return "E-mail został wysłany do: " + to;
+        } catch (Exception e) {
+            logger.error("Błąd podczas wysyłania e-maila: {}", e);
+            return "Błąd podczas wysyłania e-maila: " + e.getMessage();
+        }
+    }
+
+
+    /**
+     * Endpoint do wysyłania wiadomości e-mail z dynamicznym odbiorcą.
+     *
+     * @param to adres odbiorcy (wymagany)
+     * @return komunikat o powodzeniu lub błędzie wysyłania e-maila
+     */
+    @GetMapping("/send-email-recipient")
+    public String sendEmailRecipient(@RequestParam String to) {
+        try {
+            String subject = "Domyślny temat";
+            String text = "Domyślna treść wiadomości.";
+
+            emailService.sendEmail(
+                    "test@stanislawnowak.pl", // Nadawca (stały)
+                    to, // Dynamiczny odbiorca
+                    subject,
+                    text
+            );
+
             return "E-mail został wysłany do: " + to;
         } catch (Exception e) {
             logger.error("Błąd podczas wysyłania e-maila: {}", e);
