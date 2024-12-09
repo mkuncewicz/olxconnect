@@ -5,8 +5,8 @@ spring:
   mail:
     host: smtp.dpoczta.pl
     port: 587
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    username: ${SPRING_MAIL_USERNAME} # Config Vars z Heroku
+    password: ${SPRING_MAIL_PASSWORD} # Config Vars z Heroku
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
@@ -14,7 +14,7 @@ spring:
       mail.debug: true
 
   datasource:
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL} # Config Vars z Heroku
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -25,9 +25,13 @@ spring:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 olx:
-  client_id: ${OLX_CLIENT_ID}
-  client_secret: ${OLX_CLIENT_SECRET}
-  redirect_uri: ${OLX_REDIRECT_URI}
+  client_id: ${OLX_CLIENT_ID} # Config Vars z Heroku
+  client_secret: ${OLX_CLIENT_SECRET} # Config Vars z Heroku
+  redirect_uri: ${OLX_REDIRECT_URI} # Config Vars z Heroku
+
+mailersend:
+  api:
+    token: ${MAILERSEND_API_TOKEN} # Config Vars z Heroku
 
 logging:
   level:

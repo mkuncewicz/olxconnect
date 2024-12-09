@@ -306,7 +306,7 @@ public class OlxService {
         if (newMessagesList.isEmpty()) {
             logger.info("Nie ma nowej wiadomości");
             return;
-        }else {
+        } else {
             logger.info("Jest nowa wiadomość");
         }
 
@@ -324,8 +324,9 @@ public class OlxService {
 
         // Wysyłanie jednego e-maila z całą zawartością listy
         try {
-            emailService.sendSimpleEmail(
-                    "kuncewicz.mateusz@gmail.com", // Statyczny adres e-mail (możesz zamienić na dynamiczny)
+            emailService.sendEmail(
+                    "test@stanislawnowak.pl", // Nadawca (ustawiony jako zweryfikowany w MailerSend)
+                    "kuncewicz.mateusz@gmail.com", // Odbiorca
                     "Nowe wiadomości w OLX",
                     emailContent.toString()
             );
@@ -335,6 +336,7 @@ public class OlxService {
             logger.error("Błąd podczas wysyłania zbiorczego e-maila: {}", e.getMessage());
         }
     }
+
 
 
 }
