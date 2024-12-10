@@ -326,7 +326,7 @@ public class OlxService {
         try {
             emailService.sendEmail(
                     "test@stanislawnowak.pl", // Nadawca (ustawiony jako zweryfikowany w MailerSend)
-                    "kuncewicz.mateusz@gmail.com", // Odbiorca
+                    "mateusz.kuncewicz@onet.pl", // Odbiorca
                     "Nowe wiadomości w OLX",
                     emailContent.toString()
             );
