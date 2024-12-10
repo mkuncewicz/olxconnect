@@ -323,6 +323,7 @@ public class OlxService {
         }
 
         // Wysyłanie jednego e-maila z całą zawartością listy
+        logger.info("Próba wyśłania maila");
         try {
             emailService.sendEmail(
                     "test@stanislawnowak.pl", // Nadawca (ustawiony jako zweryfikowany w MailerSend)
