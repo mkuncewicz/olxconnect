@@ -6,6 +6,7 @@ import com.example.olxconnect.dto.UserDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -61,6 +62,7 @@ public class ChatService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.set("Version", "2");
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
