@@ -19,7 +19,7 @@
     <div class="account" th:each="token : ${tokenList}">
         <img src="/images/icons8-male-user-100.png" alt="User Icon">
         <div class="account-info">
-            <p th:text="${token.username}">Nazwa użytkownika</p>
+            <p th:id="'username-' + ${token.id}" th:text="${token.username}">Nazwa użytkownika</p>
 
             <!-- Sprawdzanie statusu tokena -->
             <span class="status expiredtoken"
@@ -28,17 +28,21 @@
             </span>
             <span class="status connected"
                   th:if="${token.created.isAfter(T(java.time.LocalDateTime).now().minusDays(27))
-                        and token.expiration.isAfter(T(java.time.LocalDateTime).now())}">
+                         and token.expiration.isAfter(T(java.time.LocalDateTime).now())}">
                 Połączony
             </span>
             <span class="status expired"
                   th:if="${token.created.isAfter(T(java.time.LocalDateTime).now().minusDays(27))
-                        and token.expiration.isBefore(T(java.time.LocalDateTime).now())}">
+                         and token.expiration.isBefore(T(java.time.LocalDateTime).now())}">
                 Token expired
             </span>
 
             <small class="ref-token">Ref Token:</small>
             <small class="ref-token" th:text="${token.refreshToken}">Ref Token</small>
+
+            <!-- Zmiana nazwy użytkownika -->
+            <input type="text" th:id="'input-change-name-' + ${token.id}" class="input-change-name" placeholder="Zmień nazwę">
+            <button class="button-change-name" th:onclick="'changeUserName(' + ${token.id} + ')'">Zmień nazwę</button>
         </div>
         <button class="delete-button" th:onclick="'deleteUser(' + ${token.id} + ')'">Usuń</button>
     </div>
@@ -59,6 +63,7 @@
 
             if (response.ok) {
                 alert(`Usunięto użytkownika o ID: ${tokenId}`);
+                location.reload(); // Odświeżenie strony po usunięciu użytkownika
             } else if (response.status === 404) {
                 alert(`Nie znaleziono użytkownika o ID: ${tokenId}`);
             } else {
@@ -70,15 +75,43 @@
         }
     }
 
+    async function changeUserName(tokenId) {
+        const input = document.getElementById(`input-change-name-${tokenId}`);
+        const newName = input.value.trim();
+
+        if (!newName) {
+            alert("Nazwa użytkownika nie może być pusta.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/tokens/${tokenId}/username`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: newName })
+            });
+
+            if (response.ok) {
+                document.getElementById(`username-${tokenId}`).innerText = newName;
+                alert("Nazwa użytkownika została zaktualizowana.");
+            } else {
+                alert("Wystąpił błąd podczas aktualizacji nazwy użytkownika.");
+            }
+        } catch (error) {
+            console.error("Błąd podczas aktualizacji nazwy użytkownika:", error);
+            alert("Nie udało się zaktualizować nazwy użytkownika. Sprawdź konsolę.");
+        }
+    }
+
     function updateAdverts() {
         fetch('/adverts/update-by-button', {
             method: 'GET'
         })
             .then(response => {
                 if (response.ok) {
-                    // Przekierowanie na stronę główną
-                    window.location.href = "/";
-                    alert("Zaktualizowano reklamy")
+                    alert("Zaktualizowano reklamy");
                 } else {
                     alert("Wystąpił problem podczas aktualizacji reklam.");
                 }

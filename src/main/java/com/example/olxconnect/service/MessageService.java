@@ -1,6 +1,8 @@
 package com.example.olxconnect.service;
 
 import com.example.olxconnect.dto.MessageDto;
+import com.example.olxconnect.dto.MessageResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,6 @@ public class MessageService {
     public List<MessageDto> getMessages(String token, Long threadId) {
         String url = "https://www.olx.pl/api/partner/threads/" + threadId + "/messages";
 
-        // Tworzenie nagłówków z tokenem i wersją API
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         headers.set("Version", "2");
@@ -44,21 +45,16 @@ public class MessageService {
                     String.class
             );
 
-            logger.info("Odpowiedź HTTP: {}", response);
-
             if (response.getStatusCode().is2xxSuccessful()) {
-                // Mapowanie JSON na obiekt MessageDto
-                Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), Map.class);
-                List<MessageDto> messages = objectMapper.convertValue(responseBody.get("data"), List.class);
+                MessageResponse messageResponse = objectMapper.readValue(
+                        response.getBody(),
+                        new TypeReference<MessageResponse>() {}
+                );
 
-                if (messages == null || messages.isEmpty()) {
-                    throw new RuntimeException("Odpowiedź API nie zawiera wiadomości.");
-                }
-                return messages;
+                return messageResponse.getData();
             } else {
                 throw new RuntimeException("Błąd podczas pobierania wiadomości: " + response.getStatusCode());
             }
-
         } catch (HttpClientErrorException e) {
             logger.error("Błąd HTTP w getMessages: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw new RuntimeException("Błąd HTTP podczas pobierania wiadomości: " + e.getMessage(), e);
@@ -67,4 +63,5 @@ public class MessageService {
             throw new RuntimeException("Nie udało się pobrać wiadomości z OLX API.", e);
         }
     }
+
 }

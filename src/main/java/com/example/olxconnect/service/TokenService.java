@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class TokenService {
@@ -56,6 +57,18 @@ public class TokenService {
                     logger.error("Failed to refresh token for user: {}", token.getUsername(), e);
                 }
             }
+        }
+    }
+
+    public void updateUserName(Long tokenId, String username) {
+
+        Optional<Token> optionalToken = tokenRepository.findById(tokenId);
+        if (optionalToken.isPresent()) {
+            Token token = optionalToken.get();
+            token.setUsername(username);
+            tokenRepository.save(token);
+        }else {
+            logger.info("TokenId nie istnieje");
         }
     }
 

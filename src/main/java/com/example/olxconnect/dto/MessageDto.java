@@ -30,7 +30,7 @@ public class MessageDto {
     @JsonProperty("is_read")
     private boolean isRead;
 
-    private List<Attachment> attachments;
-    private List<Cv> cvs;
+    private List<Attachment> attachments = List.of();
+    private List<Cv> cvs = List.of();
     private String phone;
 }

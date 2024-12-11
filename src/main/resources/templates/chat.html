@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat</title>
-  <link rel="stylesheet" th:href="@{/css/chatstyle.css}">
+  <link rel="stylesheet" th:href="@{/css/chatst yle.css}">
 </head>
 <body>
 
@@ -21,7 +21,7 @@
   <div class="chat-container">
     <header class="chat-header">
       <img src="/images/icons8-male-user-100.png" alt="User Icon" class="usericon">
-      <h1 th:text="${chatUserName}">Nazwa użytkownika</h1>
+      <h1 th:text="${chatUserName != null ? chatUserName : 'Nieznany użytkownik'}">Nazwa użytkownika</h1>
       <button class="back-button" onclick="goBack()">⬅ Wróć</button>
     </header>
     <div class="chat-messages" id="chatMessages">
@@ -30,7 +30,7 @@
            th:classappend="${message.type == 'sent'} ? 'user' : 'other'"
            class="chat-message">
         <p class="message-text" th:text="${message.text}"></p>
-        <span class="message-timestamp" th:text="${#dates.format(message.createdAt, 'HH:mm, dd.MM.yyyy')}"></span>
+        <span class="message-timestamp" th:text="${message.createdAt != null ? #dates.format(message.createdAt, 'HH:mm, dd.MM.yyyy') : 'Brak daty'}"></span>
       </div>
     </div>
     <div class="chat-input-container">

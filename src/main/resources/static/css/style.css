@@ -169,3 +169,22 @@ body {
 .delete-button:active {
     transform: translateY(0);
 }
+
+.input-change-name{
+    min-height: 20px;
+    font-size: 20px;
+}
+
+.button-change-name{
+    background: #7010af;
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 5px 7px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button-change-name:hover{
+    background: #9152bb;
+}
