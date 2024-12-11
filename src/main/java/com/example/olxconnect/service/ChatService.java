@@ -60,6 +60,7 @@ public class ChatService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Version", "2");
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 

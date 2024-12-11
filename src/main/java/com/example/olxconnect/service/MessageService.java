@@ -23,6 +23,7 @@ public class MessageService {
         // Tworzenie nagłówków z tokenem
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
+        headers.set("Version", "2");
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
