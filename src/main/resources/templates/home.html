@@ -4,28 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OLXConnect</title>
-
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-    <div class="button-container">
-        <button class="styled-button" onclick="window.location.href = '/auth/login';">Połącz Konto OLX</button>
-    </div>
+<div class="button-container">
+    <button class="styled-button" onclick="window.location.href = '/auth/login';">Połącz Konto OLX</button>
+</div>
 
+<div class="list-accounts">
 
-
-    <div class="list-accounts">
-
-        <div class="account" th:each="token : ${tokenList}">
-            <img src="/images/icons8-male-user-100.png" alt="User Icon">
-            <div class="account-info">
-                <p th:text="${token.username}">Nazwa użytkownika</p>
-                <span class="status connected" th:if="${token.expiration.isAfter(T(java.time.LocalDateTime).now())}">Połączony</span>
-                <span class="status expired" th:if="${token.expiration.isBefore(T(java.time.LocalDateTime).now())}">Token expired</span>
-            </div>
+    <!-- Iteracja przez listę użytkowników -->
+    <div class="account" th:each="token : ${tokenList}">
+        <img src="/images/icons8-male-user-100.png" alt="User Icon">
+        <div class="account-info">
+            <p th:text="${token.username}">Nazwa użytkownika</p>
+            <span class="status connected" th:if="${token.expiration.isAfter(T(java.time.LocalDateTime).now())}">Połączony</span>
+            <span class="status expired" th:if="${token.expiration.isBefore(T(java.time.LocalDateTime).now())}">Token expired</span>
+            <small class="ref-token">Ref Token:</small>
+            <small class="ref-token" th:text="${token.refreshToken}">Ref Token</small>
         </div>
+        <button class="delete-button" th:onclick="'deleteUser(' + ${token.id} + ')'">Usuń</button>
     </div>
+
+</div>
+
+<script>
+    function deleteUser(tokenId) {
+        console.log(`Usuwanie użytkownika o ID: ${tokenId}`);
+        alert(`Usunięto użytkownika o ID: ${tokenId}`);
+    }
+</script>
 
 </body>
 </html>
