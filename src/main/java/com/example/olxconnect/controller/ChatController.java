@@ -31,24 +31,34 @@ public class ChatController {
 
     @GetMapping("/{token}/{threadId}")
     public String chatPage(Model model, @PathVariable String token, @PathVariable Long threadId) {
+        try {
+            // Pobranie informacji o wątku z bazy danych
+            Optional<ThreadResponse> optionalThreadResponse = threadResponseRepository.findByThreadId(threadId);
 
-        Optional<ThreadResponse> optionalThreadResponse = threadResponseRepository.findByThreadId(threadId);
+            ChatComponentsDto chatComponents;
 
-        ChatComponentsDto chatComponents;
+            // Jeśli wątek istnieje w bazie, pobierz jego komponenty
+            if (optionalThreadResponse.isPresent()) {
+                ThreadResponse threadResponse = optionalThreadResponse.get();
+                chatComponents = chatService.getChatComponents(token, threadId, threadResponse.getInterlocutorId());
+            } else {
+                // Jeśli wątku nie ma w bazie, pobierz tylko wiadomości
+                chatComponents = new ChatComponentsDto();
+                List<MessageDto> messages = messageService.getMessages(token, threadId);
+                chatComponents.setMessages(messages);
+                chatComponents.setUserName("Brak nazwy");
+            }
 
-        if (optionalThreadResponse.isPresent()) {
-            chatComponents = chatService.getChatComponents(token, threadId, optionalThreadResponse.get().getInterlocutorId());
-        }else {
-            chatComponents = new ChatComponentsDto();
-            List<MessageDto> messages = messageService.getMessages(token, threadId);
+            // Dodanie atrybutów do modelu
+            model.addAttribute("chatUserName", chatComponents.getUserName());
+            model.addAttribute("messages", chatComponents.getMessages());
 
-            chatComponents.setMessages(messages);
-            chatComponents.setUserName("Brak nazwy");
+            return "chat";
+
+        } catch (Exception e) {
+            // Obsługa błędów
+            model.addAttribute("error", "Wystąpił błąd podczas ładowania czatu: " + e.getMessage());
+            return "error";
         }
-
-        model.addAttribute("chatUserName", chatComponents.getUserName()); // Przykładowa nazwa użytkownika
-        model.addAttribute("messages", chatComponents.getMessages());
-        return "chat";
     }
-
 }
