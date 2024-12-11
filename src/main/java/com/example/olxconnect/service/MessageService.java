@@ -23,7 +23,7 @@ public class MessageService {
     }
 
     public List<MessageDto> getMessages(String token, Long threadId) {
-        String url = "https://api.olx.pl/threads/" + threadId + "/messages";
+        String url = "https://www.olx.pl/api/partner/threads/" + threadId + "/messages";
 
         // Tworzenie nagłówków z tokenem i wersją API
         HttpHeaders headers = new HttpHeaders();
