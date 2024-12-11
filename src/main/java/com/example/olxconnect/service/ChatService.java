@@ -3,7 +3,6 @@ package com.example.olxconnect.service;
 import com.example.olxconnect.dto.ChatComponentsDto;
 import com.example.olxconnect.dto.MessageDto;
 import com.example.olxconnect.dto.UserDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,11 +20,11 @@ public class ChatService {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
-    private MessageService messageService;
+    private final MessageService messageService;
 
-    public ChatService(RestTemplate restTemplate) {
+    public ChatService(RestTemplate restTemplate, MessageService messageService) {
         this.restTemplate = restTemplate;
+        this.messageService = messageService;
     }
 
     public ChatComponentsDto getChatComponents(String accessToken, Long threadId, Long interlocutorId) {
