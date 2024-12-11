@@ -1,33 +1,41 @@
+# Aplikacja OLXConnect
 spring:
   application:
     name: olxconnect
 
+  # Konfiguracja serwera poczty
   mail:
     host: smtp.dpoczta.pl
     port: 587
-    username: ${SPRING_MAIL_USERNAME} # Użytkownik do serwera SMTP (Heroku Config Vars)
-    password: ${SPRING_MAIL_PASSWORD} # Hasło do serwera SMTP (Heroku Config Vars)
+    username: ${SPRING_MAIL_USERNAME} # Użytkownik SMTP (Heroku Config Vars)
+    password: ${SPRING_MAIL_PASSWORD} # Hasło SMTP (Heroku Config Vars)
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
       mail.smtp.starttls.required: true
-      mail.debug: true
 
+  # Konfiguracja bazy danych
   datasource:
     url: ${DATABASE_URL} # URL bazy danych ustawiony w Heroku Config Vars
     driver-class-name: org.postgresql.Driver
     username: ${DATABASE_USERNAME} # Jeśli nie jest częścią DATABASE_URL
     password: ${DATABASE_PASSWORD} # Jeśli nie jest częścią DATABASE_URL
     hikari:
-      maximum-pool-size: 16 # Limit połączeń do bazy danych
+      maximum-pool-size: 16 # Maksymalna liczba połączeń
+      minimum-idle: 2       # Minimalna liczba bezczynnych połączeń
+      idle-timeout: 30000   # Czas oczekiwania w ms na zakończenie bezczynnego połączenia
+      max-lifetime: 1800000 # Maksymalny czas życia połączenia w ms
+      connection-timeout: 20000 # Timeout połączenia w ms
 
+  # Konfiguracja Hibernate i JPA
   jpa:
     hibernate:
-      ddl-auto: update # Zmieniaj tylko podczas developmentu
-    show-sql: true
+      ddl-auto: none # Nie zmieniaj schematu w środowisku produkcyjnym
+    show-sql: false
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
+# API OLX
 olx:
   api:
     base-url: ${OLX_API_BASE_URL} # Podstawowy URL API OLX (Heroku Config Vars)
@@ -35,12 +43,19 @@ olx:
   client_secret: ${OLX_CLIENT_SECRET} # Sekret klienta (Heroku Config Vars)
   redirect_uri: ${OLX_REDIRECT_URI} # URL przekierowania (Heroku Config Vars)
 
+# MailerSend
 mailersend:
   api:
     token: ${MAILERSEND_API_TOKEN} # Token API Mailersend (Heroku Config Vars)
 
+# E-mail docelowy
+notification:
+  recipient-email: ${NOTIFICATION_RECIPIENT_EMAIL} # Adres e-mail docelowy (Heroku Config Vars)
+
+# Ustawienia logowania
 logging:
   level:
     root: DEBUG
-    org.springframework.mail: TRACE
-    org.springframework.boot.autoconfigure.mail: TRACE
+    org.springframework:
+      mail: TRACE
+      boot.autoconfigure.mail: TRACE

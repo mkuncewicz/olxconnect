@@ -4,6 +4,7 @@ import com.example.olxconnect.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,10 @@ public class EmailController {
     @Autowired
     private EmailService emailService;
 
+    @Value("${notification.recipient-email}")
+    private String recipientEmail;
+
+
     /**
      * Endpoint do wysyłania wiadomości e-mail z domyślnym odbiorcą.
      *
@@ -26,7 +31,7 @@ public class EmailController {
      */
     @GetMapping("/send-email")
     public String sendEmail(
-            @RequestParam(defaultValue = "kuncewicz.mateusz@gmail.com") String to,
+            @RequestParam(defaultValue = "mateusz.kuncewicz@onet.pl") String to,
             @RequestParam(defaultValue = "Testowy temat") String subject,
             @RequestParam(defaultValue = "Treść testowego e-maila") String text
     ) {

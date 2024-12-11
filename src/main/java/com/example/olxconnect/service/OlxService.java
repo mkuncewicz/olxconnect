@@ -40,6 +40,9 @@ public class OlxService {
     @Value("${olx.redirect_uri}")
     private String redirectUri;
 
+    @Value("${notification.recipient-email}")
+    private String recipientEmail;
+
     private static final String STATE = "abc123";
     private static final String SCOPE = "read write v2";
     private static final String AUTH_URL = "https://www.olx.pl/oauth/authorize/";
@@ -342,7 +345,7 @@ public class OlxService {
         try {
             emailService.sendEmail(
                     "test@stanislawnowak.pl", // Nadawca (ustawiony jako zweryfikowany w MailerSend)
-                    "mateusz.kuncewicz@onet.pl", // Odbiorca
+                    recipientEmail, // Odbiorca
                     "Nowe wiadomości w OLX",
                     emailContent.toString()
             );
