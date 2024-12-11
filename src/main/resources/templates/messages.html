@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Wiadomości</title>
+</head>
+<body>
+<h1>Lista wiadomości</h1>
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Data utworzenia</th>
+    <th>Typ</th>
+    <th>Tekst</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="message : ${messages}">
+    <td th:text="${message.id}">ID</td>
+    <td th:text="${message.createdAt}">Data</td>
+    <td th:text="${message.type}">Typ</td>
+    <td th:text="${message.text}">Tekst</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
