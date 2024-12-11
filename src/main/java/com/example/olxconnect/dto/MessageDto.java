@@ -1,5 +1,6 @@
 package com.example.olxconnect.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class MessageDto {
     private Long threadId;
 
     @JsonProperty("created_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     private String type; // "sent" lub "received"
