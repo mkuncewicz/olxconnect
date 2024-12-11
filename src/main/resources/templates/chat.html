@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <link rel="stylesheet" th:href="@{/css/chatstyle.css}">
+</head>
+<body>
+
+<div class="main">
+  <!-- Gotowe wiadomości po lewej stronie -->
+  <div class="predefined-messages">
+    <button th:onclick="'fillTextarea(' + '\'Dzień dobry! Czy oferta jest aktualna?\'' + ')'">Dzień dobry! Czy oferta jest aktualna?</button>
+    <button th:onclick="'fillTextarea(' + '\'Proszę o więcej szczegółów dotyczących oferty.\'' + ')'">Proszę o więcej szczegółów dotyczących oferty.</button>
+    <button th:onclick="'fillTextarea(' + '\'Czy możliwa jest negocjacja ceny?\'' + ')'">Czy możliwa jest negocjacja ceny?</button>
+    <button th:onclick="'fillTextarea(' + '\'Czy mogę prosić o dodatkowe zdjęcia?\'' + ')'">Czy mogę prosić o dodatkowe zdjęcia?</button>
+  </div>
+
+  <!-- Chat główny -->
+  <div class="chat-container">
+    <header class="chat-header">
+      <img src="/images/icons8-male-user-100.png" alt="User Icon" class="usericon">
+      <h1 th:text="${chatUserName}">Nazwa użytkownika</h1>
+      <button class="back-button" onclick="goBack()">⬅ Wróć</button>
+    </header>
+    <div class="chat-messages" id="chatMessages">
+      <!-- Przykładowe wiadomości (załaduj z serwera) -->
+      <div th:each="message : ${messages}"
+           th:classappend="${message.type == 'sent'} ? 'user' : 'other'"
+           class="chat-message">
+        <p class="message-text" th:text="${message.text}">Przykładowa wiadomość</p>
+        <span class="message-timestamp" th:text="${#dates.format(message.createdAt, 'HH:mm, dd.MM.yyyy')}">11:30, 10.12.2024</span>
+      </div>
+    </div>
+    <div class="chat-input-container">
+      <textarea id="chatInput" placeholder="Napisz wiadomość..."></textarea>
+      <button class="send-button" onclick="sendMessage()">Wyślij</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function goBack() {
+    window.location.href = '/';
+  }
+
+  function sendMessage() {
+    const chatInput = document.getElementById("chatInput");
+    const message = chatInput.value.trim();
+    if (message) {
+      const chatMessages = document.getElementById("chatMessages");
+      const userMessage = document.createElement("div");
+      userMessage.className = "chat-message user";
+
+      const messageText = document.createElement("p");
+      messageText.className = "message-text";
+      messageText.textContent = message;
+      userMessage.appendChild(messageText);
+
+      const messageTimestamp = document.createElement("span");
+      messageTimestamp.className = "message-timestamp";
+      const now = new Date();
+      messageTimestamp.textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}, ${now.getDate()}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+      userMessage.appendChild(messageTimestamp);
+
+      chatMessages.appendChild(userMessage);
+
+      chatInput.value = "";
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  }
+
+  function fillTextarea(message) {
+    const chatInput = document.getElementById("chatInput");
+    chatInput.value = message;
+  }
+</script>
+</body>
+</html>
