@@ -142,7 +142,7 @@ body {
     border: 1px solid #ffeeba;
 }
 
-.status.expreftoken{
+.status.expiredtoken{
     background-color: #0777b8;
     color: #083775;
     border: 1px solid #075dad;
