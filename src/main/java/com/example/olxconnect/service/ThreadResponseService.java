@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ThreadResponseService {
@@ -25,6 +26,9 @@ public class ThreadResponseService {
         return threadResponseRepository.findAllByOwnerId(owner.getId());
     }
 
+    public Optional<ThreadResponse> findByThreadId(Long threadId) {
+        return threadResponseRepository.findByThreadId(threadId);
+    }
 
     public void save(ThreadResponse thread) {
         threadResponseRepository.save(thread);

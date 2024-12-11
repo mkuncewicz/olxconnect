@@ -332,11 +332,9 @@ public class OlxService {
 
         for (NewMessageMail newMessage : newMessagesList) {
             emailContent.append(String.format(
-                    "Konto: %s\nOgłoszenie: %s\nID Ogłoszenia: %s\nLink: %s\n\n",
+                    "Konto: %s\nLink: %s\n\n",
                     newMessage.getAccount(),
-                    newMessage.getAdvertTitle(),
-                    newMessage.getAdvertId(), // ID reklamy
-                    newMessage.getAdvertUrl() // Link do reklamy
+                    "https://login.olx.pl/?cc=eyJjYyI6MSwiZ3JvdXBzIjoiQzAwMDE6MSxDMDAwMjoxLEMwMDAzOjEsQzAwMDQ6MSxnYWQ6MSJ9&client_id=6j7elk01p32o648o1io8lvhhab&code_challenge=CnWPwh8l09z-QeZXhjkaee97d_S2NaMFUz63s1iydec&code_challenge_method=S256&lang=pl&redirect_uri=https%3A%2F%2Fwww.olx.pl%2Fd%2Fcallback%2F&st=eyJzbCI6IjE5MjM4NjJjYzQzeDZlYmNlZGRhIiwicyI6IjE5M2I3OGFhNzZheDUyMDlhMzY2In0%3D&state=cVRfRHRjZy5pSU5hMS1GLTVrRGVjdENxRG5fUFE0N25KQm1rM0tFSkF4OA%3D%3D"
             ));
         }
 
