@@ -1,6 +1,7 @@
 package com.example.olxconnect.service;
 
 import com.example.olxconnect.dto.MessageDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -8,8 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MessageService {
@@ -17,9 +18,11 @@ public class MessageService {
     private static final Logger logger = LoggerFactory.getLogger(MessageService.class);
 
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
-    public MessageService(RestTemplate restTemplate) {
+    public MessageService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public List<MessageDto> getMessages(String token, Long threadId) {
@@ -28,28 +31,30 @@ public class MessageService {
         // Tworzenie nagłówków z tokenem i wersją API
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
-        headers.set("Version", "2"); // Dodanie wersji API
+        headers.set("Version", "2");
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<MessageDto[]> response = restTemplate.exchange(
+            ResponseEntity<String> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     entity,
-                    MessageDto[].class
+                    String.class
             );
 
-            // Logowanie całej odpowiedzi
             logger.info("Odpowiedź HTTP: {}", response);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                MessageDto[] body = response.getBody();
-                if (body == null || body.length == 0) {
+                // Mapowanie JSON na obiekt MessageDto
+                Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), Map.class);
+                List<MessageDto> messages = objectMapper.convertValue(responseBody.get("data"), List.class);
+
+                if (messages == null || messages.isEmpty()) {
                     throw new RuntimeException("Odpowiedź API nie zawiera wiadomości.");
                 }
-                return Arrays.asList(body);
+                return messages;
             } else {
                 throw new RuntimeException("Błąd podczas pobierania wiadomości: " + response.getStatusCode());
             }
@@ -62,6 +67,4 @@ public class MessageService {
             throw new RuntimeException("Nie udało się pobrać wiadomości z OLX API.", e);
         }
     }
-
 }
-

@@ -66,7 +66,9 @@ public class TokenService {
         return token.getExpiration().isBefore(LocalDateTime.now().plusHours(1)); // Jeśli zostało mniej niż 1 godzina
     }
 
-
+    private boolean shouldGenerateNewRefreshToken(Token token) {
+        return token.getExpiration().isBefore(LocalDateTime.now().plusDays(3));
+    }
 
     private Token refreshToken(Token token) {
         HttpHeaders headers = new HttpHeaders();
