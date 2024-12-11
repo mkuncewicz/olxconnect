@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,4 +29,8 @@ public class MessageDto {
 
     @JsonProperty("is_read")
     private boolean isRead;
+
+    private List<Attachment> attachments;
+    private List<Cv> cvs;
+    private String phone;
 }
