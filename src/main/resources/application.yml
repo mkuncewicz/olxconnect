@@ -5,8 +5,8 @@ spring:
   mail:
     host: smtp.dpoczta.pl
     port: 587
-    username: ${SPRING_MAIL_USERNAME} # Config Vars z Heroku
-    password: ${SPRING_MAIL_PASSWORD} # Config Vars z Heroku
+    username: ${SPRING_MAIL_USERNAME} # Użytkownik do serwera SMTP (Heroku Config Vars)
+    password: ${SPRING_MAIL_PASSWORD} # Hasło do serwera SMTP (Heroku Config Vars)
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
@@ -14,24 +14,28 @@ spring:
       mail.debug: true
 
   datasource:
-    url: ${DATABASE_URL} # Config Vars z Heroku
+    url: ${DATABASE_URL} # URL bazy danych ustawiony w Heroku Config Vars
     driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME} # Jeśli nie jest częścią DATABASE_URL
+    password: ${DATABASE_PASSWORD} # Jeśli nie jest częścią DATABASE_URL
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update # Zmieniaj tylko podczas developmentu
     show-sql: true
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 olx:
-  client_id: ${OLX_CLIENT_ID} # Config Vars z Heroku
-  client_secret: ${OLX_CLIENT_SECRET} # Config Vars z Heroku
-  redirect_uri: ${OLX_REDIRECT_URI} # Config Vars z Heroku
+  api:
+    base-url: ${OLX_API_BASE_URL} # Podstawowy URL API OLX (Heroku Config Vars)
+  client_id: ${OLX_CLIENT_ID} # Klucz klienta (Heroku Config Vars)
+  client_secret: ${OLX_CLIENT_SECRET} # Sekret klienta (Heroku Config Vars)
+  redirect_uri: ${OLX_REDIRECT_URI} # URL przekierowania (Heroku Config Vars)
 
 mailersend:
   api:
-    token: ${MAILERSEND_API_TOKEN} # Config Vars z Heroku
+    token: ${MAILERSEND_API_TOKEN} # Token API Mailersend (Heroku Config Vars)
 
 logging:
   level:
