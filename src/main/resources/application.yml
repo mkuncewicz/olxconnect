@@ -18,6 +18,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${DATABASE_USERNAME} # Jeśli nie jest częścią DATABASE_URL
     password: ${DATABASE_PASSWORD} # Jeśli nie jest częścią DATABASE_URL
+    hikari:
+      maximum-pool-size: 10 # Limit połączeń do bazy danych
 
   jpa:
     hibernate:
