@@ -29,8 +29,8 @@
       <div th:each="message : ${messages}"
            th:classappend="${message.type == 'sent'} ? 'user' : 'other'"
            class="chat-message">
-        <p class="message-text" th:text="${message.text}">Przykładowa wiadomość</p>
-        <span class="message-timestamp" th:text="${#dates.format(message.createdAt, 'HH:mm, dd.MM.yyyy')}">11:30, 10.12.2024</span>
+        <p class="message-text" th:text="${message.text}"></p>
+        <span class="message-timestamp" th:text="${#dates.format(message.createdAt, 'HH:mm, dd.MM.yyyy')}"></span>
       </div>
     </div>
     <div class="chat-input-container">

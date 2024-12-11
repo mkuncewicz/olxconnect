@@ -20,8 +20,23 @@
         <img src="/images/icons8-male-user-100.png" alt="User Icon">
         <div class="account-info">
             <p th:text="${token.username}">Nazwa użytkownika</p>
-            <span class="status connected" th:if="${token.expiration.isAfter(T(java.time.LocalDateTime).now())}">Połączony</span>
-            <span class="status expired" th:if="${token.expiration.isBefore(T(java.time.LocalDateTime).now())}">Token expired</span>
+
+            <!-- Sprawdzanie statusu tokena -->
+            <span class="status expiredtoken"
+                  th:if="${token.created.isBefore(T(java.time.LocalDateTime).now().minusDays(27))}">
+                Token wymaga odświeżenia
+            </span>
+            <span class="status connected"
+                  th:if="${token.created.isAfter(T(java.time.LocalDateTime).now().minusDays(27))
+                        and token.expiration.isAfter(T(java.time.LocalDateTime).now())}">
+                Połączony
+            </span>
+            <span class="status expired"
+                  th:if="${token.created.isAfter(T(java.time.LocalDateTime).now().minusDays(27))
+                        and token.expiration.isBefore(T(java.time.LocalDateTime).now())}">
+                Token expired
+            </span>
+
             <small class="ref-token">Ref Token:</small>
             <small class="ref-token" th:text="${token.refreshToken}">Ref Token</small>
         </div>
@@ -74,7 +89,6 @@
             });
     }
 </script>
-
 
 </body>
 </html>

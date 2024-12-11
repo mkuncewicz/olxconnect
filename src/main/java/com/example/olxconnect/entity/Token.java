@@ -25,6 +25,7 @@ public class Token {
     private String refreshToken;
     private LocalDateTime expiration;
     private String username;
+    private LocalDateTime created;
 
     @OneToMany(mappedBy = "token", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Advert> adverts = new ArrayList<>(); // Lista reklam przypisanych do tego tokena
@@ -32,11 +33,12 @@ public class Token {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ThreadResponse> threads = new ArrayList<>();
 
-    public Token(String accessToken, String refreshToken, LocalDateTime expiration, String username) {
+    public Token(String accessToken, String refreshToken, LocalDateTime expiration, String username, LocalDateTime created) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiration = expiration;
         this.username = username;
+        this.created = created;
     }
 }
 
