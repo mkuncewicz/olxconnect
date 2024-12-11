@@ -27,7 +27,7 @@
                 Token wymaga odświeżenia
             </span>
             <span class="status connected"
-                  th:if="${token.created.isAfter(T(java.time.LocalDateTime).now().minusDays(27))
+                  th:if="${token.created.isAfter(T(java.time.LocalDateTime).now().minusDays(23))
                          and token.expiration.isAfter(T(java.time.LocalDateTime).now())}">
                 Połączony
             </span>
