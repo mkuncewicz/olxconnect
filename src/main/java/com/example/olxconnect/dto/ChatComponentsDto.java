@@ -1,14 +1,14 @@
 package com.example.olxconnect.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class ChatComponentsDto {
     private String avatar;
     private String userName;

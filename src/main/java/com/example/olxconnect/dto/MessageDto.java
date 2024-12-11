@@ -1,12 +1,16 @@
 package com.example.olxconnect.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class MessageDto {
     private Long id;
 
