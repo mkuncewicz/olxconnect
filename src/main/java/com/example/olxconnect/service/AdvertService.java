@@ -161,4 +161,18 @@ public class AdvertService {
 
         return advertTitle;
     }
+
+    public String getAdvertUrl(Long advertId){
+        String advertUrl;
+
+        Optional<Advert> optionalAdvert = advertRepository.findByAdvertId(advertId);
+
+        if (optionalAdvert.isPresent()){
+            advertUrl = optionalAdvert.get().getUrl();
+        }else {
+            advertUrl = "Nie udało się pobrać linku do reklamy";
+        }
+
+        return advertUrl;
+    }
 }

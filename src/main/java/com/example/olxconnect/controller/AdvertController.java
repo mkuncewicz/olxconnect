@@ -20,4 +20,11 @@ public class AdvertController {
         advertService.updateAdverts();
         return ResponseEntity.ok("Reklamy zostały zaktualizowane.");
     }
+
+    @GetMapping("/update-by-button")
+    public ResponseEntity<Void> updateAdvertsByButton() {
+        advertService.updateAdverts();
+        return ResponseEntity.ok().build();
+    }
+
 }

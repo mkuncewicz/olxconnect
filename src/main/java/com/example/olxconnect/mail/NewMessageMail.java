@@ -17,5 +17,7 @@ public class NewMessageMail {
 
     private String advertTitle;
 
+    private String advertUrl;
+
     private String time;
 }

@@ -13,7 +13,7 @@ body {
     margin-top: 20px;
 }
 
-.styled-button {
+.styled-button-orange {
     background: linear-gradient(135deg, #ff8a65, #ff7043);
     color: white;
     font-size: 16px;
@@ -26,13 +26,37 @@ body {
     transition: all 0.3s ease;
 }
 
-.styled-button:hover {
+.styled-button-yellow{
+    background: linear-gradient(135deg, #f0ed44, #8a8704);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.styled-button-orange:hover {
     background: linear-gradient(135deg, #ff7043, #ff8a65);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
-.styled-button:active {
+.styled-button-yellow:hover{
+    background: linear-gradient(135deg, #8a8704, #f0ed44);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.styled-button-orange:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.styled-button-yellow:active{
     transform: translateY(0);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

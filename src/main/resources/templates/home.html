@@ -10,6 +10,7 @@
 
 <div class="button-container">
     <button class="styled-button" onclick="window.location.href = '/auth/login';">Połącz Konto OLX</button>
+    <button class="styled-button-yellow" onclick="updateAdverts()">Zaktualizuj reklamy</button>
 </div>
 
 <div class="list-accounts">
@@ -52,6 +53,24 @@
             console.error("Błąd podczas usuwania użytkownika:", error);
             alert(`Nie udało się usunąć użytkownika. Sprawdź konsolę.`);
         }
+    }
+
+    function updateAdverts() {
+        fetch('/adverts/update-by-button', {
+            method: 'GET'
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Przekierowanie na stronę główną
+                    window.location.href = "/";
+                } else {
+                    alert("Wystąpił problem podczas aktualizacji reklam.");
+                }
+            })
+            .catch(error => {
+                console.error("Błąd:", error);
+                alert("Wystąpił problem podczas aktualizacji reklam.");
+            });
     }
 </script>
 

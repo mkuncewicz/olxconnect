@@ -256,12 +256,14 @@ public class OlxService {
 
                     Long advertId = newThread.getAdvertId();
                     String advertTitle = advertService.getTitleAdvert(advertId);
+                    String advertUrl = advertService.getAdvertUrl(advertId);
 
                     // Dodaj informację o nowej wiadomości
                     newMessagesList.add(new NewMessageMail(
                             token.getUsername(),
                             advertId,
                             advertTitle,
+                            advertUrl,
                             threadDto.getCreatedAt()
                     ));
                 } else {
@@ -283,12 +285,13 @@ public class OlxService {
 
                         Long advertId = matchingThread.getAdvertId();
                         String advertTitle = advertService.getTitleAdvert(advertId);
-
+                        String advertUrl = advertService.getAdvertUrl(advertId);
 
                         newMessagesList.add(new NewMessageMail(
                                 token.getUsername(),
                                 advertId,
                                 advertTitle,
+                                advertUrl,
                                 threadDto.getCreatedAt()
                         ));
                     }
@@ -326,10 +329,11 @@ public class OlxService {
 
         for (NewMessageMail newMessage : newMessagesList) {
             emailContent.append(String.format(
-                    "Konto: %s\nOgłoszenie: %s\nID Ogłoszenia: %s\n\n",
+                    "Konto: %s\nOgłoszenie: %s\nID Ogłoszenia: %s\nLink: %s\n\n",
                     newMessage.getAccount(),
                     newMessage.getAdvertTitle(),
-                    newMessage.getAdvertId() // Wyświetlenie advertId
+                    newMessage.getAdvertId(), // ID reklamy
+                    newMessage.getAdvertUrl() // Link do reklamy
             ));
         }
 
