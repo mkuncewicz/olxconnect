@@ -13,6 +13,8 @@ public class NewMessageMail {
 
     private String account;
 
+    private Long advertId;
+
     private String advertTitle;
 
     private String time;

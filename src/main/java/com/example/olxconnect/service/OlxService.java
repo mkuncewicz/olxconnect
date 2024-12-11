@@ -260,6 +260,7 @@ public class OlxService {
                     // Dodaj informację o nowej wiadomości
                     newMessagesList.add(new NewMessageMail(
                             token.getUsername(),
+                            advertId,
                             advertTitle,
                             threadDto.getCreatedAt()
                     ));
@@ -286,7 +287,8 @@ public class OlxService {
 
                         newMessagesList.add(new NewMessageMail(
                                 token.getUsername(),
-                                advertTitle, // Możesz pobrać tytuł ogłoszenia, jeśli jest dostępny
+                                advertId,
+                                advertTitle,
                                 threadDto.getCreatedAt()
                         ));
                     }
@@ -324,9 +326,10 @@ public class OlxService {
 
         for (NewMessageMail newMessage : newMessagesList) {
             emailContent.append(String.format(
-                    "Konto: %s\nOgłoszenie: %s\n\n",
+                    "Konto: %s\nOgłoszenie: %s\nID Ogłoszenia: %s\n\n",
                     newMessage.getAccount(),
-                    newMessage.getAdvertTitle()
+                    newMessage.getAdvertTitle(),
+                    newMessage.getAdvertId() // Wyświetlenie advertId
             ));
         }
 
