@@ -30,11 +30,31 @@
 </div>
 
 <script>
-    function deleteUser(tokenId) {
+    async function deleteUser(tokenId) {
         console.log(`Usuwanie użytkownika o ID: ${tokenId}`);
-        alert(`Usunięto użytkownika o ID: ${tokenId}`);
+
+        try {
+            const response = await fetch(`/delete/${tokenId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                alert(`Usunięto użytkownika o ID: ${tokenId}`);
+            } else if (response.status === 404) {
+                alert(`Nie znaleziono użytkownika o ID: ${tokenId}`);
+            } else {
+                alert(`Wystąpił błąd podczas usuwania użytkownika o ID: ${tokenId}`);
+            }
+        } catch (error) {
+            console.error("Błąd podczas usuwania użytkownika:", error);
+            alert(`Nie udało się usunąć użytkownika. Sprawdź konsolę.`);
+        }
     }
 </script>
+
 
 </body>
 </html>
