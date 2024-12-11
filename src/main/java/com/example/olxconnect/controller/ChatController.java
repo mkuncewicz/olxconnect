@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Controller
 @RequestMapping("/chat")
