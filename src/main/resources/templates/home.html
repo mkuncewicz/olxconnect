@@ -23,7 +23,7 @@
 
             <!-- Sprawdzanie statusu tokena -->
             <span class="status expiredtoken"
-                  th:if="${token.created.isBefore(T(java.time.LocalDateTime).now().minusDays(27))}">
+                  th:if="${token.created.isBefore(T(java.time.LocalDateTime).now().minusDays(23))}">
                 Token wymaga odświeżenia
             </span>
             <span class="status connected"
