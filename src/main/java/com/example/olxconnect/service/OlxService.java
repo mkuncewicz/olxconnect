@@ -107,7 +107,15 @@ public class OlxService {
 
                     // Pobranie nazwy użytkownika
                     String username = fetchUsername(accessToken);
-//                    String username = "TestName1";
+
+
+                    // Sprawdzenie, czy użytkownik już istnieje
+                    if (tokenRepository.existsByUsername(username)) {
+                        logger.info("Użytkownik {} już istnieje w bazie danych.", username);
+                        return CompletableFuture.completedFuture(
+                                ResponseEntity.status(HttpStatus.CONFLICT).body("Użytkownik już istnieje w bazie danych.")
+                        );
+                    }
 
                     // Zapisanie tokena w bazie danych
                     Token token = new Token(accessToken, refreshToken, expiration, username);
