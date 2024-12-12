@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,44 +34,16 @@ public class ChatController {
     @Autowired
     private ThreadResponseRepository threadResponseRepository;
 
-    @GetMapping("/{token}/{threadId}")
-    public String chatPage(Model model, @PathVariable String token, @PathVariable Long threadId) {
-        if (token == null || token.isBlank() || threadId == null) {
-            logger.warning("Nieprawidłowy token lub ID wątku.");
-            model.addAttribute("error", "Nieprawidłowy token lub ID wątku.");
-            return "error";
-        }
+    @GetMapping()
+    public String chatPage( @RequestParam("token") String token, @RequestParam("threadId") Long threadId,Model model) {
 
-        try {
-            // Pobranie informacji o wątku z bazy danych
-            Optional<ThreadResponse> optionalThreadResponse = threadResponseRepository.findByThreadId(threadId);
+        // Pobieramy wiadomości z serwisu
+        List<MessageDto> messages = messageService.getMessages(token, threadId);
 
-            ChatComponentsDto chatComponents;
+        // Przekazujemy je do widoku
+        model.addAttribute("chatUserName", "Test");
+        model.addAttribute("messages", messages);
 
-            if (optionalThreadResponse.isPresent()) {
-                ThreadResponse threadResponse = optionalThreadResponse.get();
-                logger.info("Wątek znaleziony w bazie danych: " + threadResponse.getThreadId());
-                chatComponents = chatService.getChatComponents(token, threadId, threadResponse.getInterlocutorId());
-            } else {
-                logger.warning("Wątek o ID " + threadId + " nie istnieje w bazie. Pobieranie tylko wiadomości.");
-                chatComponents = new ChatComponentsDto();
-                List<MessageDto> messages = messageService.getMessages(token, threadId);
-                chatComponents.setMessages(messages);
-                chatComponents.setUserName("Brak nazwy");
-            }
-
-            // Dodanie atrybutów do modelu
-            model.addAttribute("chatUserName", chatComponents.getUserName());
-            model.addAttribute("messages", chatComponents.getMessages());
-
-            logger.info("Załadowano dane czatu dla wątku o ID " + threadId);
-            return "chat";
-
-        } catch (Exception e) {
-            // Logowanie błędu
-            logger.log(Level.SEVERE, "Błąd podczas ładowania czatu dla wątku o ID " + threadId, e);
-            model.addAttribute("error", "Wystąpił błąd podczas ładowania czatu: " + e.getMessage());
-            return "error";
-        }
+        return "chat";
     }
 }
