@@ -3,18 +3,21 @@ package com.example.olxconnect.service;
 import com.example.olxconnect.dto.ChatComponentsDto;
 import com.example.olxconnect.dto.MessageDto;
 import com.example.olxconnect.dto.UserDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @Service
 public class ChatService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
 
     @Value("${olx.api.base-url}")
     private String baseUrl;
@@ -69,17 +72,30 @@ public class ChatService {
         try {
             ResponseEntity<UserDto> response = restTemplate.exchange(
                     url,
-                    org.springframework.http.HttpMethod.GET,
+                    HttpMethod.GET,
                     requestEntity,
                     UserDto.class
             );
 
-            return response.getBody() != null ? response.getBody().getName() : null;
-
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                return response.getBody().getName();
+            } else {
+                logger.error("Nie udało się pobrać nazwy użytkownika. Status: {}, Body: {}",
+                        response.getStatusCode(), response.getBody());
+                return null;
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Błąd klienta HTTP przy pobieraniu użytkownika: {}", e.getMessage());
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("Błąd serwera HTTP przy pobieraniu użytkownika: {}", e.getMessage());
+            return null;
         } catch (Exception e) {
-            throw new RuntimeException("Błąd podczas pobierania nazwy użytkownika: " + e.getMessage(), e);
+            logger.error("Nieoczekiwany błąd podczas pobierania nazwy użytkownika: {}", e.getMessage());
+            return null;
         }
     }
+
 
 
 }
