@@ -1,9 +1,11 @@
 package com.example.olxconnect.controller;
 
 import com.example.olxconnect.dto.MessageDto;
+import com.example.olxconnect.dto.UserDto;
 import com.example.olxconnect.repository.ThreadResponseRepository;
 import com.example.olxconnect.service.ChatService;
 import com.example.olxconnect.service.MessageService;
+import com.example.olxconnect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,15 +29,20 @@ public class ChatController {
     private MessageService messageService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private ThreadResponseRepository threadResponseRepository;
 
     @GetMapping()
-    public String chatPage( @RequestParam("token") String token, @RequestParam("threadId") Long threadId,Model model) {
+    public String chatPage( @RequestParam("token") String token, @RequestParam("threadId") Long threadId,@RequestParam("userId") Long userId,Model model) {
 
-        String username = chatService.getUsernameByInterlocutorId(token, 1452582100L);
+        UserDto userDto = userService.getUserById(token,userId);
 
         // Pobieramy wiadomości z serwisu
         List<MessageDto> messages = messageService.getMessages(token, threadId);
+
+        String username = userDto.getName();
 
         // Przekazujemy je do widoku
         model.addAttribute("chatUserName", username);
