@@ -246,33 +246,33 @@ public class OlxService {
             List<ThreadResponseDto> threadsFromAPI = fetchThreads(accessToken); // Pobierz wątki z OLX API
 
             for (ThreadResponseDto threadDto : threadsFromAPI) {
-                // Szukaj odpowiedniego wątku w bazie danych
                 ThreadResponse matchingThread = tokenThreadsDB.stream()
                         .filter(t -> t.getThreadId().equals(threadDto.getId()))
                         .findFirst()
                         .orElse(null);
 
                 if (matchingThread == null) {
-                    // Jeśli wątek nie istnieje w bazie, zapisz nowy wątek
+                    // Nowy wątek
                     ThreadResponse newThread = threadMapper.toEntity(threadDto, token);
-                    threadResponseService.save(newThread); // Użyj ThreadResponseService do zapisu
+                    threadResponseService.save(newThread);
 
                     Long advertId = newThread.getAdvertId();
                     String advertTitle = advertService.getTitleAdvert(advertId);
                     String advertUrl = advertService.getAdvertUrl(advertId);
 
-                    // Dodaj informację o nowej wiadomości
                     newMessagesList.add(new NewMessageMail(
                             token.getUsername(),
                             advertId,
                             advertTitle,
                             advertUrl,
-                            threadDto.getCreatedAt()
+                            threadDto.getCreatedAt(),
+                            accessToken,
+                            threadDto.getId(),
+                            threadDto.getInterlocutorId()
                     ));
                 } else {
                     boolean isUpdated = false;
 
-                    // Jeśli liczba wiadomości zmieniła się
                     if (!matchingThread.getUnreadCount().equals(threadDto.getUnreadCount())) {
                         matchingThread.setUnreadCount(threadDto.getUnreadCount());
                         isUpdated = true;
@@ -284,7 +284,7 @@ public class OlxService {
                     }
 
                     if (isUpdated) {
-                        threadResponseService.save(matchingThread); // Nadpisz istniejący wątek w bazie
+                        threadResponseService.save(matchingThread);
 
                         Long advertId = matchingThread.getAdvertId();
                         String advertTitle = advertService.getTitleAdvert(advertId);
@@ -295,14 +295,16 @@ public class OlxService {
                                 advertId,
                                 advertTitle,
                                 advertUrl,
-                                threadDto.getCreatedAt()
+                                threadDto.getCreatedAt(),
+                                accessToken,
+                                threadDto.getId(),
+                                threadDto.getInterlocutorId()
                         ));
                     }
 
-                    // Jeśli liczba nieprzeczytanych wiadomości zmniejszyła się
                     if (matchingThread.getUnreadCount() > threadDto.getUnreadCount()) {
                         matchingThread.setUnreadCount(threadDto.getUnreadCount());
-                        threadResponseService.save(matchingThread); // Nadpisz liczbę nieprzeczytanych wiadomości
+                        threadResponseService.save(matchingThread);
                     }
                 }
             }
@@ -310,6 +312,7 @@ public class OlxService {
 
         return newMessagesList; // Zwróć listę nowych wiadomości
     }
+
 
 
     @Scheduled(fixedRate = 60000) // Uruchamianie co 60 sekund
@@ -331,15 +334,23 @@ public class OlxService {
         emailContent.append("Masz nowe wiadomości w OLX:\n\n");
 
         for (NewMessageMail newMessage : newMessagesList) {
+            String chatLink = String.format(
+                    "https://olxconnector-39418e6199c9.herokuapp.com/chat?token=%s&threadId=%s&userId=%s",
+                    newMessage.getToken(),
+                    newMessage.getThreadId(),
+                    newMessage.getInterlocutorId()
+            );
+
             emailContent.append(String.format(
-                    "Konto: %s\nLink: %s\n\n",
+                    "Konto: %s\nTytuł ogłoszenia: %s\nLink do chatu: %s\n\n",
                     newMessage.getAccount(),
-                    "https://login.olx.pl/?cc=eyJjYyI6MSwiZ3JvdXBzIjoiQzAwMDE6MSxDMDAwMjoxLEMwMDAzOjEsQzAwMDQ6MSxnYWQ6MSJ9&client_id=6j7elk01p32o648o1io8lvhhab&code_challenge=CnWPwh8l09z-QeZXhjkaee97d_S2NaMFUz63s1iydec&code_challenge_method=S256&lang=pl&redirect_uri=https%3A%2F%2Fwww.olx.pl%2Fd%2Fcallback%2F&st=eyJzbCI6IjE5MjM4NjJjYzQzeDZlYmNlZGRhIiwicyI6IjE5M2I3OGFhNzZheDUyMDlhMzY2In0%3D&state=cVRfRHRjZy5pSU5hMS1GLTVrRGVjdENxRG5fUFE0N25KQm1rM0tFSkF4OA%3D%3D"
+                    newMessage.getAdvertTitle(),
+                    chatLink
             ));
         }
 
         // Wysyłanie jednego e-maila z całą zawartością listy
-        logger.info("Próba wyśłania maila");
+        logger.info("Próba wysłania maila");
         try {
             emailService.sendEmail(
                     "test@stanislawnowak.pl", // Nadawca (ustawiony jako zweryfikowany w MailerSend)
@@ -353,6 +364,7 @@ public class OlxService {
             logger.error("Błąd podczas wysyłania zbiorczego e-maila: {}", e.getMessage());
         }
     }
+
 
 
 

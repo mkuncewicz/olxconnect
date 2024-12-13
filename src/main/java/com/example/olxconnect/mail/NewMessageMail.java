@@ -20,4 +20,10 @@ public class NewMessageMail {
     private String advertUrl;
 
     private String time;
+
+    private String token;
+
+    private Long threadId;
+
+    private Long interlocutorId;
 }
