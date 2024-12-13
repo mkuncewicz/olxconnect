@@ -30,7 +30,7 @@
            th:classappend="${message.type == 'sent'} ? 'user' : 'other'"
            class="chat-message">
         <p class="message-text" th:text="${message.text}"></p>
-        <span class="message-timestamp" th:text="${message.createdAt != null ? #dates.format(message.createdAt, 'HH:mm, dd.MM.yyyy') : 'Brak daty'}"></span>
+        <span class="message-timestamp" th:text="${message.createdAt != null ? #temporals.format(message.createdAt, 'HH:mm, dd.MM.yyyy') : 'Brak daty'}"></span>
       </div>
     </div>
     <div class="chat-input-container">
