@@ -2,6 +2,7 @@ package com.example.olxconnect.controller;
 
 import com.example.olxconnect.dto.UserDto;
 import com.example.olxconnect.service.ChatService;
+import com.example.olxconnect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +17,8 @@ public class UserNameController {
     @Autowired
     private ChatService chatService;
 
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public String chatPage(@RequestParam("token") String token, @RequestParam("userId") Long userId, Model model) {
@@ -23,9 +26,7 @@ public class UserNameController {
         String usernameByInterlocutorId = chatService.getUsernameByInterlocutorId(token, userId);
 
         // Stwórz obiekt DTO użytkownika i dodaj do modelu
-        UserDto userDto = new UserDto();
-        userDto.setId(userId);
-        userDto.setName(usernameByInterlocutorId);
+        UserDto userDto = userService.getUserById(token, userId);
 
         model.addAttribute("user", userDto);
 
