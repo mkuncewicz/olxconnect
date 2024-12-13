@@ -41,6 +41,7 @@ public class ChatController {
 
         // Pobieramy wiadomości z serwisu
         List<MessageDto> messages = messageService.getMessages(token, threadId);
+        logger.info("Pobrano dane użytkownika: " + userDto);
 
         String username = userDto.getName();
 

@@ -17,4 +17,5 @@ public class UserDto {
 
     @JsonProperty("avatar")
     private String avatar;
+
 }
