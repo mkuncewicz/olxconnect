@@ -37,11 +37,13 @@ public class ChatController {
     @GetMapping()
     public String chatPage( @RequestParam("token") String token, @RequestParam("threadId") Long threadId,Model model) {
 
+        String username = chatService.getUsernameByInterlocutorId(token, 1452582100L);
+
         // Pobieramy wiadomości z serwisu
         List<MessageDto> messages = messageService.getMessages(token, threadId);
 
         // Przekazujemy je do widoku
-        model.addAttribute("chatUserName", "Test");
+        model.addAttribute("chatUserName", username);
         model.addAttribute("messages", messages);
 
         return "chat";
