@@ -1,5 +1,6 @@
 package com.example.olxconnect.controller;
 
+import com.example.olxconnect.dto.UserDto;
 import com.example.olxconnect.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,11 +17,20 @@ public class UserNameController {
     private ChatService chatService;
 
 
-    @GetMapping()
-    public String chatPage(@RequestParam("token") String token,@RequestParam("userId") Long userId, Model model) {
-
+    @GetMapping
+    public String chatPage(@RequestParam("token") String token, @RequestParam("userId") Long userId, Model model) {
+        // Pobierz nazwę użytkownika na podstawie ID
         String usernameByInterlocutorId = chatService.getUsernameByInterlocutorId(token, userId);
 
-        return usernameByInterlocutorId;
+        // Stwórz obiekt DTO użytkownika i dodaj do modelu
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+        userDto.setName(usernameByInterlocutorId);
+
+        model.addAttribute("user", userDto);
+
+        // Zwróć nazwę widoku
+        return "user";
     }
+
 }

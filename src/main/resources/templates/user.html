@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informacje o użytkowniku</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" /> <!-- Opcjonalnie dodaj ścieżkę do CSS -->
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Profil użytkownika</h1>
+  </header>
+
+  <section class="user-info">
+    <h2>Informacje:</h2>
+    <p><strong>ID:</strong> <span th:text="${user.id}">[ID użytkownika]</span></p>
+    <p><strong>Imię:</strong> <span th:text="${user.name}">[Nazwa użytkownika]</span></p>
+    <div th:if="${user.avatar != null}">
+      <p><strong>Avatar:</strong></p>
+      <img th:src="${user.avatar}" alt="Avatar użytkownika" style="max-width: 200px; max-height: 200px;">
+    </div>
+    <div th:if="${user.avatar == null}">
+      <p><strong>Avatar:</strong> Brak</p>
+    </div>
+  </section>
+
+  <footer>
+    <button onclick="goBack()">Powrót</button>
+  </footer>
+</div>
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+</script>
+</body>
+</html>
