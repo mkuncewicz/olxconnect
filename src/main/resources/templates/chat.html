@@ -75,6 +75,14 @@
     const chatInput = document.getElementById("chatInput");
     chatInput.value = message;
   }
+
+  function scrollToBottom() {
+    const chatMessages = document.getElementById("chatMessages");
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Wywołanie scrollToBottom po załadowaniu strony
+  window.onload = scrollToBottom;
 </script>
 </body>
 </html>
