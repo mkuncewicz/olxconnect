@@ -1,6 +1,7 @@
 package com.example.olxconnect.service;
 
 import com.example.olxconnect.dto.UserDto;
+import com.example.olxconnect.dto.UserResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,32 +28,31 @@ public class UserService {
     /**
      * Pobiera dane użytkownika na podstawie ID.
      *
-     * @param accessToken Token dostępu do API.
+     * @param token Token dostępu do API.
      * @param userId      ID użytkownika, którego dane mają zostać pobrane.
      * @return Obiekt UserDto lub null, jeśli użytkownik nie został znaleziony.
      */
-    public UserDto getUserById(String accessToken, Long userId) {
-        String url = baseUrl + "/users/" + userId;
+    public UserDto getUserById(String token, Long userId) {
+        String url = "https://www.olx.pl/api/partner/users/" + userId;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Authorization", "Bearer " + token);
         headers.set("Version", "2");
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<UserDto> response = restTemplate.exchange(
+            ResponseEntity<UserResponseDto> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     requestEntity,
-                    UserDto.class
+                    UserResponseDto.class
             );
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return response.getBody();
+                return response.getBody().getData(); // Pobieramy obiekt użytkownika z pola `data`
             } else {
-                // Logowanie w przypadku niepowodzenia
                 logger.error("Nie udało się pobrać danych użytkownika. Status: {}, Body: {}",
                         response.getStatusCode(), response.getBody());
                 return null;
@@ -64,8 +64,9 @@ public class UserService {
             logger.error("Błąd serwera HTTP przy pobieraniu użytkownika: {}", e.getMessage());
             return null;
         } catch (Exception e) {
-            logger.error("Nieoczekiwany błąd podczas pobierania danych użytkownika: {}", e.getMessage());
+            logger.error("Nieoczekiwany błąd podczas pobierania użytkownika: {}", e.getMessage());
             return null;
         }
     }
+
 }
