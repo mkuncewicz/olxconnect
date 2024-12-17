@@ -54,7 +54,7 @@
     const message = chatInput.value.trim();
 
     if (message) {
-      fetch(`/sendMessage?token=${token}&threadId=${threadId}&text=${encodeURIComponent(message)}`, {
+      fetch(`/chat/sendMessage?token=${token}&threadId=${threadId}&text=${encodeURIComponent(message)}`, {
         method: "POST",
       })
               .then(response => {
