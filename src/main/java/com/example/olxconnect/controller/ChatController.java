@@ -7,11 +7,11 @@ import com.example.olxconnect.service.ChatService;
 import com.example.olxconnect.service.MessageService;
 import com.example.olxconnect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -48,7 +48,28 @@ public class ChatController {
         // Przekazujemy je do widoku
         model.addAttribute("chatUserName", username);
         model.addAttribute("messages", messages);
+        model.addAttribute("token", token);
+        model.addAttribute("threadId", threadId);
 
         return "chat";
     }
+
+    @PostMapping("/sendMessage")
+    @ResponseBody
+    public ResponseEntity<String> sendMessage(
+            @RequestParam("token") String token,
+            @RequestParam("threadId") Long threadId,
+            @RequestParam("text") String text,
+            @RequestParam(value = "attachmentUrls", required = false) List<String> attachmentUrls) {
+
+        try {
+            messageService.sendMessage(token, threadId, text, attachmentUrls);
+            return ResponseEntity.ok("Wiadomość została wysłana.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Nie udało się wysłać wiadomości.");
+        }
+    }
+
+
 }
+

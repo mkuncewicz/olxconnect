@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,5 +65,53 @@ public class MessageService {
             throw new RuntimeException("Nie udało się pobrać wiadomości z OLX API.", e);
         }
     }
+
+
+    public void sendMessage(String token, Long threadId, String text, List<String> attachmentUrls) {
+        String url = "https://www.olx.pl/api/partner/threads/" + threadId + "/messages";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        headers.set("Version", "2");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Budowanie ciała wiadomości
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("text", text);
+
+        if (attachmentUrls != null && !attachmentUrls.isEmpty()) {
+            List<Map<String, String>> attachments = new ArrayList<>();
+            for (String attachmentUrl : attachmentUrls) {
+                Map<String, String> attachment = new HashMap<>();
+                attachment.put("url", attachmentUrl);
+                attachments.add(attachment);
+            }
+            requestBody.put("attachments", attachments);
+        }
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    Void.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Wiadomość została pomyślnie wysłana.");
+            } else {
+                logger.error("Błąd podczas wysyłania wiadomości. Status: {}", response.getStatusCode());
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Błąd HTTP podczas wysyłania wiadomości: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Błąd HTTP podczas wysyłania wiadomości.", e);
+        } catch (Exception e) {
+            logger.error("Nieoczekiwany błąd podczas wysyłania wiadomości: ", e);
+            throw new RuntimeException("Nie udało się wysłać wiadomości.", e);
+        }
+    }
+
 
 }

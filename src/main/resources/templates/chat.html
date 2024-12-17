@@ -40,7 +40,11 @@
   </div>
 </div>
 
-<script>
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const token = /*[[${token}]]*/ 'defaultToken';
+  const threadId = /*[[${threadId}]]*/ 'defaultThreadId';
+
   function goBack() {
     window.location.href = '/';
   }
@@ -48,26 +52,20 @@
   function sendMessage() {
     const chatInput = document.getElementById("chatInput");
     const message = chatInput.value.trim();
+
     if (message) {
-      const chatMessages = document.getElementById("chatMessages");
-      const userMessage = document.createElement("div");
-      userMessage.className = "chat-message user";
-
-      const messageText = document.createElement("p");
-      messageText.className = "message-text";
-      messageText.textContent = message;
-      userMessage.appendChild(messageText);
-
-      const messageTimestamp = document.createElement("span");
-      messageTimestamp.className = "message-timestamp";
-      const now = new Date();
-      messageTimestamp.textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}, ${now.getDate()}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
-      userMessage.appendChild(messageTimestamp);
-
-      chatMessages.appendChild(userMessage);
-
-      chatInput.value = "";
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      fetch(`/sendMessage?token=${token}&threadId=${threadId}&text=${encodeURIComponent(message)}`, {
+        method: "POST",
+      })
+              .then(response => {
+                if (response.ok) {
+                  alert("Wiadomość wysłana pomyślnie!");
+                  chatInput.value = "";
+                } else {
+                  alert("Wystąpił błąd podczas wysyłania wiadomości.");
+                }
+              })
+              .catch(error => console.error("Błąd:", error));
     }
   }
 
@@ -83,6 +81,7 @@
 
   // Wywołanie scrollToBottom po załadowaniu strony
   window.onload = scrollToBottom;
+  /*]]>*/
 </script>
 </body>
 </html>
