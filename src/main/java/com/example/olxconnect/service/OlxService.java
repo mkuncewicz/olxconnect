@@ -320,6 +320,7 @@ public class OlxService {
     @Scheduled(fixedRate = 60000) // Uruchamianie co 60 sekund
     public void checkAndNotifyNewMessages() {
         logger.info("checkAndNotifyNewMessages użyto");
+        logger.info(LocalDateTime.now().toString()); //Do usuniecia wyswietlenie daty serwera
 
         // Pobranie nowych wiadomości
         List<NewMessageMail> newMessagesList = isNewMessage();
