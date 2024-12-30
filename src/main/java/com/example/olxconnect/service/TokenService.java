@@ -40,6 +40,19 @@ public class TokenService {
     private RestTemplate restTemplate;
 
 
+    public Token getTokenByRefreshToken(String refreshToken) {
+
+        Token tokenDB = tokenRepository.findByRefreshToken(refreshToken);
+
+        return tokenDB;
+    }
+
+    public String getStringTokenByRefreshToken(String refrestToken){
+
+        String accessToken = tokenRepository.findAccessTokenByRefreshToken(refrestToken);
+
+        return accessToken;
+    }
 
     @Scheduled(fixedRate = 1800000) // Co 30 minut
     public void refreshTokens() {

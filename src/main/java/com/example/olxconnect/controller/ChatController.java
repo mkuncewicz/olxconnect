@@ -3,6 +3,7 @@ package com.example.olxconnect.controller;
 import com.example.olxconnect.dto.MessageDto;
 import com.example.olxconnect.dto.UserDto;
 import com.example.olxconnect.repository.ThreadResponseRepository;
+import com.example.olxconnect.repository.TokenRepository;
 import com.example.olxconnect.service.ChatService;
 import com.example.olxconnect.service.MessageService;
 import com.example.olxconnect.service.UserService;
@@ -34,6 +35,9 @@ public class ChatController {
     @Autowired
     private ThreadResponseRepository threadResponseRepository;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
     @GetMapping()
     public String chatPage( @RequestParam("token") String token, @RequestParam("threadId") Long threadId,@RequestParam("userId") Long userId,Model model) {
 
@@ -49,6 +53,38 @@ public class ChatController {
         model.addAttribute("chatUserName", username);
         model.addAttribute("messages", messages);
         model.addAttribute("token", token);
+        model.addAttribute("threadId", threadId);
+
+        return "chat";
+    }
+
+    @GetMapping("/byRefreshToken")
+    public String chatPageByRefresh(
+            @RequestParam("refreshToken") String refreshToken,
+            @RequestParam("threadId") Long threadId,
+            @RequestParam("userId") Long userId,
+            Model model) {
+
+        // Pobierz accessToken na podstawie refreshToken
+        String accessToken = tokenRepository.findAccessTokenByRefreshToken(refreshToken);
+
+        if (accessToken == null) {
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
+
+        // Pobierz dane użytkownika na podstawie accessToken i userId
+        UserDto userDto = userService.getUserById(accessToken, userId);
+
+        // Pobieramy wiadomości z serwisu
+        List<MessageDto> messages = messageService.getMessages(accessToken, threadId);
+        logger.info("Pobrano dane użytkownika: " + userDto);
+
+        String username = userDto.getName();
+
+        // Przekazujemy je do widoku
+        model.addAttribute("chatUserName", username);
+        model.addAttribute("messages", messages);
+        model.addAttribute("token", accessToken); // Przekazujemy accessToken
         model.addAttribute("threadId", threadId);
 
         return "chat";

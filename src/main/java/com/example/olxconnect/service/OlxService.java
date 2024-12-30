@@ -267,6 +267,7 @@ public class OlxService {
                             advertUrl,
                             threadDto.getCreatedAt(),
                             accessToken,
+                            token.getRefreshToken(),
                             threadDto.getId(),
                             threadDto.getInterlocutorId()
                     ));
@@ -297,6 +298,7 @@ public class OlxService {
                                 advertUrl,
                                 threadDto.getCreatedAt(),
                                 accessToken,
+                                token.getRefreshToken(),
                                 threadDto.getId(),
                                 threadDto.getInterlocutorId()
                         ));
@@ -335,8 +337,8 @@ public class OlxService {
 
         for (NewMessageMail newMessage : newMessagesList) {
             String chatLink = String.format(
-                    "https://olxconnector-39418e6199c9.herokuapp.com/chat?token=%s&threadId=%s&userId=%s",
-                    newMessage.getToken(),
+                    "https://olxconnector-39418e6199c9.herokuapp.com/chat/byRefreshToken?refreshToken=%s&threadId=%s&userId=%s",
+                    newMessage.getRefreshToken(), // Wykorzystujemy refreshToken zamiast accessToken
                     newMessage.getThreadId(),
                     newMessage.getInterlocutorId()
             );
@@ -364,6 +366,7 @@ public class OlxService {
             logger.error("Błąd podczas wysyłania zbiorczego e-maila: {}", e.getMessage());
         }
     }
+
 
 
 

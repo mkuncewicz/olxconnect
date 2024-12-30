@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -23,6 +24,9 @@ public class MessageService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+
+    @Autowired
+    private TokenService tokenService;
 
     public MessageService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
@@ -64,6 +68,13 @@ public class MessageService {
             logger.error("Ogólny błąd w getMessages: ", e);
             throw new RuntimeException("Nie udało się pobrać wiadomości z OLX API.", e);
         }
+    }
+
+    public List<MessageDto> getMessagesByRefreshToken(String refreshToken, Long threadId) {
+
+        String stringTokenByRefreshToken = tokenService.getStringTokenByRefreshToken(refreshToken);
+
+        return getMessages(stringTokenByRefreshToken,threadId);
     }
 
 

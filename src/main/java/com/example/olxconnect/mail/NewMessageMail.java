@@ -21,7 +21,9 @@ public class NewMessageMail {
 
     private String time;
 
-    private String token;
+    private String accToken;
+
+    private String refreshToken;
 
     private Long threadId;
 
