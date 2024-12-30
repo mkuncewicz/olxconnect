@@ -69,6 +69,9 @@ public class OlxService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private NewMessageService newMessageService;
+
     public String getAuthorizationUrl() {
         return String.format(
                 "%s?client_id=%s&response_type=code&state=%s&scope=%s&redirect_uri=%s",
@@ -324,6 +327,8 @@ public class OlxService {
 
         // Pobranie nowych wiadomości
         List<NewMessageMail> newMessagesList = isNewMessage();
+
+        newMessagesList = newMessageService.getDateFromLastMessage(newMessagesList);
 
         if (newMessagesList.isEmpty()) {
             logger.info("Nie ma nowej wiadomości");
