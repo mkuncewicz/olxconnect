@@ -23,7 +23,7 @@ public class NewMessageService {
 
             List<MessageDto> messages = messageService.getMessages(newMessageMail.getAccToken(), newMessageMail.getThreadId());
 
-            if (isMessageFromToday(messages.getFirst())){
+            if (isMessageFromToday(messages.get(0))){
 
                 result.add(newMessageMail);
             }
