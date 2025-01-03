@@ -60,6 +60,8 @@
                 if (response.ok) {
                   alert("Wiadomość wysłana pomyślnie!");
                   chatInput.value = "";
+                  // Odśwież stronę
+                  location.reload();
                 } else {
                   alert("Wystąpił błąd podczas wysyłania wiadomości.");
                 }
@@ -67,6 +69,7 @@
               .catch(error => console.error("Błąd:", error));
     }
   }
+
 
   function fillTextarea(message) {
     const chatInput = document.getElementById("chatInput");
