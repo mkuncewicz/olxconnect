@@ -1,5 +1,6 @@
 package com.example.olxconnect.service;
 
+import com.example.olxconnect.dto.ApiResponseWrapper;
 import com.example.olxconnect.dto.MessageDto;
 import com.example.olxconnect.dto.MessageResponse;
 import com.example.olxconnect.dto.ThreadResponseDto;
@@ -98,9 +99,15 @@ public class MessageService {
             );
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                ThreadResponseDto threadResponse = objectMapper.readValue(response.getBody(), ThreadResponseDto.class);
+                // Odczyt JSON-a z opakowaniem
+                ApiResponseWrapper<ThreadResponseDto> wrapper = objectMapper.readValue(
+                        response.getBody(),
+                        new TypeReference<ApiResponseWrapper<ThreadResponseDto>>() {}
+                );
 
-                if (threadResponse.getId() == null || threadResponse.getTotalCount() == null) {
+                ThreadResponseDto threadResponse = wrapper.getData();
+
+                if (threadResponse == null || threadResponse.getId() == null || threadResponse.getTotalCount() == null) {
                     throw new IllegalArgumentException("Niepełne dane w odpowiedzi z API OLX.");
                 }
 
@@ -117,6 +124,7 @@ public class MessageService {
             throw new RuntimeException("Nie udało się pobrać wątku z OLX API.", e);
         }
     }
+
 
 
     public void sendMessage(String token, Long threadId, String text, List<String> attachmentUrls) {
