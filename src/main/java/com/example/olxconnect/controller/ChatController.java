@@ -1,11 +1,14 @@
 package com.example.olxconnect.controller;
 
 import com.example.olxconnect.dto.MessageDto;
+import com.example.olxconnect.dto.ThreadResponseDto;
 import com.example.olxconnect.dto.UserDto;
+import com.example.olxconnect.entity.ThreadResponse;
 import com.example.olxconnect.repository.ThreadResponseRepository;
 import com.example.olxconnect.repository.TokenRepository;
 import com.example.olxconnect.service.ChatService;
 import com.example.olxconnect.service.MessageService;
+import com.example.olxconnect.service.ThreadResponseService;
 import com.example.olxconnect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Controller
@@ -33,7 +37,7 @@ public class ChatController {
     private UserService userService;
 
     @Autowired
-    private ThreadResponseRepository threadResponseRepository;
+    private ThreadResponseService threadResponseService;
 
     @Autowired
     private TokenRepository tokenRepository;
@@ -100,6 +104,21 @@ public class ChatController {
 
         try {
             messageService.sendMessage(token, threadId, text, attachmentUrls);
+
+            ThreadResponseDto threadFromApi = messageService.getThreadFromApi(token, threadId);
+            Optional<ThreadResponse> threadFromDB = threadResponseService.findByThreadId(threadId);
+
+            if (threadFromDB.isPresent()) {
+                ThreadResponse updatedThreadResponse = threadFromDB.get();
+                updatedThreadResponse.setTotalCount(threadFromApi.getTotalCount());
+                updatedThreadResponse.setUnreadCount(threadFromApi.getUnreadCount());
+                threadResponseService.save(updatedThreadResponse);
+
+                logger.info("Wątek ID " + threadId + " został zaktualizowany w bazie danych.");
+            } else {
+                logger.warning("Wątek ID " + threadId + " nie został znaleziony w bazie danych.");
+            }
+
             return ResponseEntity.ok("Wiadomość została wysłana.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Nie udało się wysłać wiadomości.");

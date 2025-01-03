@@ -2,6 +2,7 @@ package com.example.olxconnect.service;
 
 import com.example.olxconnect.dto.MessageDto;
 import com.example.olxconnect.dto.MessageResponse;
+import com.example.olxconnect.dto.ThreadResponseDto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -75,6 +76,46 @@ public class MessageService {
         String stringTokenByRefreshToken = tokenService.getStringTokenByRefreshToken(refreshToken);
 
         return getMessages(stringTokenByRefreshToken,threadId);
+    }
+
+
+    public ThreadResponseDto getThreadFromApi(String token, Long threadId) {
+        String url = "https://www.olx.pl/api/partner/threads/" + threadId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        headers.set("Version", "2");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                ThreadResponseDto threadResponse = objectMapper.readValue(response.getBody(), ThreadResponseDto.class);
+
+                if (threadResponse.getId() == null || threadResponse.getTotalCount() == null) {
+                    throw new IllegalArgumentException("Niepełne dane w odpowiedzi z API OLX.");
+                }
+
+                return threadResponse;
+            } else {
+                logger.error("Błąd podczas pobierania wątku. Status: {}", response.getStatusCode());
+                throw new RuntimeException("Błąd podczas pobierania wątku: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Błąd HTTP w getThreadFromApi: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Błąd HTTP podczas pobierania wątku: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Ogólny błąd w getThreadFromApi: ", e);
+            throw new RuntimeException("Nie udało się pobrać wątku z OLX API.", e);
+        }
     }
 
 
