@@ -21,10 +21,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class OlxService {
@@ -373,8 +375,47 @@ public class OlxService {
         }
     }
 
+    @Scheduled(fixedRate = 10800000)
+    public void notificationAboutRefreshTokenEnd() {
+        logger.info("Sprawdzanie refresh tokenów...");
 
+        List<Token> tokenList = tokenRepository.findAll();
+        List<Token> expiredTokens = new ArrayList<>();
 
+        for (Token token : tokenList) {
+            if (token.getCreated().plusDays(30).isBefore(LocalDateTime.now())) {
+                expiredTokens.add(token);
+            }
+        }
 
+        if (expiredTokens.isEmpty()) {
 
+            logger.info("Wszystkie refreshtokeny aktualne");
+        }else {
+
+            StringBuilder emailContent = new StringBuilder();
+            emailContent.append("Masz nowe wiadomości w OLX:\n\n");
+
+            for (Token token : expiredTokens) {
+
+                emailContent.append(String.format(
+                        "Konto: %s wygasło: %s%n",
+                        token.getUsername(),
+                        token.getCreated().plusDays(30).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                ));
+            }
+
+        try {
+            emailService.sendEmail(
+                    "test@stanislawnowak.pl",
+                    recipientEmail,
+                    "RefreshToken wygasł",
+                    emailContent.toString()
+                    );
+        }catch (Exception e){
+
+            logger.error("Błąd podczas wysyłania e-maila w notificationAboutRefreshTokenEnd: {}", e.getMessage(), e);
+        }
+        }
+    }
 }
