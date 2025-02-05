@@ -386,7 +386,7 @@ public class OlxService {
             if (token.getCreated().plusDays(30).isBefore(LocalDateTime.now()) && !token.isMessageIsSent()) {
                 expiredTokens.add(token);
 
-                token.setMessageIsSent(true);
+//                token.setMessageIsSent(true);
                 tokenRepository.save(token);
             }
         }

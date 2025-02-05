@@ -28,7 +28,7 @@ public class Token {
     private LocalDateTime created;
 
     //Dodane
-    private boolean messageIsSent = false;
+//    private boolean messageIsSent = false;
 
     @OneToMany(mappedBy = "token", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Advert> adverts = new ArrayList<>(); // Lista reklam przypisanych do tego tokena
