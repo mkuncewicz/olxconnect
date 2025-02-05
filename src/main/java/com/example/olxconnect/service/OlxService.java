@@ -383,10 +383,10 @@ public class OlxService {
         List<Token> expiredTokens = new ArrayList<>();
 
         for (Token token : tokenList) {
-            if (token.getCreated().plusDays(30).isBefore(LocalDateTime.now())) {
+            if (token.getCreated().plusDays(30).isBefore(LocalDateTime.now()) && !token.isMessageIsSent()) {
                 expiredTokens.add(token);
 
-//                token.setMessageIsSent(true);
+                token.setMessageIsSent(true);
                 tokenRepository.save(token);
             }
         }
