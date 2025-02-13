@@ -19,8 +19,7 @@ import java.util.Optional;
 @Service
 public class TokenService {
 
-
-    private static final Logger logger = LoggerFactory.getLogger(OlxService.class);
+    private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     @Value("${olx.client_id}")
     private String clientId;
@@ -28,8 +27,8 @@ public class TokenService {
     @Value("${olx.client_secret}")
     private String clientSecret;
 
-    @Value("${olx.redirect_uri}")
-    private String redirectUri;
+    @Value("${notification.recipient-email}")
+    private String recipientEmail;
 
     private static final String TOKEN_URL = "https://www.olx.pl/api/open/oauth/token";
 
@@ -39,49 +38,60 @@ public class TokenService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private EmailService emailService; // Dodajemy emailService do wysyłania powiadomień
 
+    /**
+     * Pobiera token na podstawie refresh tokena.
+     */
     public Token getTokenByRefreshToken(String refreshToken) {
-
-        Token tokenDB = tokenRepository.findByRefreshToken(refreshToken);
-
-        return tokenDB;
+        return tokenRepository.findByRefreshToken(refreshToken);
     }
 
-    public String getStringTokenByRefreshToken(String refrestToken){
-
-        String accessToken = tokenRepository.findAccessTokenByRefreshToken(refrestToken);
-
-        return accessToken;
+    /**
+     * Pobiera access token na podstawie refresh tokena.
+     */
+    public String getStringTokenByRefreshToken(String refreshToken) {
+        return tokenRepository.findAccessTokenByRefreshToken(refreshToken);
     }
 
+    /**
+     * Harmonogram odświeżania tokenów (co 30 minut).
+     */
     @Scheduled(fixedRate = 1800000) // Co 30 minut
     public void refreshTokens() {
-        List<Token> tokens = tokenRepository.findAll(); // Pobierz wszystkie tokeny z bazy danych
+        List<Token> tokens = tokenRepository.findAll();
 
         for (Token token : tokens) {
-            if (shouldRefreshToken(token)) { // Sprawdź, czy token wymaga odświeżenia
+            if (shouldRefreshToken(token)) {
                 try {
-                    Token refreshedToken = refreshToken(token); // Odśwież token
+                    Token refreshedToken = refreshToken(token);
+
                     if (refreshedToken != null) {
-                        tokenRepository.save(refreshedToken); // Zapisz zaktualizowany token w bazie danych
+                        refreshedToken.setMessageIsSent(false); // Resetujemy flagę po udanym odświeżeniu
+                        tokenRepository.save(refreshedToken);
                         logger.info("Token refreshed for user: {}", token.getUsername());
+                    } else {
+                        handleExpiredRefreshToken(token);
                     }
                 } catch (Exception e) {
-                    logger.error("Failed to refresh token for user: {}", token.getUsername(), e);
+                    logger.error("Błąd podczas odświeżania tokena dla użytkownika: {}", token.getUsername(), e);
                 }
             }
         }
     }
 
+    /**
+     * Aktualizuje nazwę użytkownika przypisaną do tokena.
+     */
     public void updateUserName(Long tokenId, String username) {
-
         Optional<Token> optionalToken = tokenRepository.findById(tokenId);
         if (optionalToken.isPresent()) {
             Token token = optionalToken.get();
             token.setUsername(username);
             tokenRepository.save(token);
-        }else {
-            logger.info("TokenId nie istnieje");
+        } else {
+            logger.info("TokenId {} nie istnieje", tokenId);
         }
     }
 
@@ -89,18 +99,52 @@ public class TokenService {
      * Sprawdza, czy token wymaga odświeżenia (pozostało mniej niż 1 godzina).
      */
     private boolean shouldRefreshToken(Token token) {
-        return token.getExpiration().isBefore(LocalDateTime.now().plusHours(1)); // Jeśli zostało mniej niż 1 godzina
+        return token.getExpiration().isBefore(LocalDateTime.now().plusHours(1));
     }
 
-    private boolean shouldGenerateNewRefreshToken(Token token) {
-        return token.getExpiration().isBefore(LocalDateTime.now().plusDays(3));
+    /**
+     * Obsługa przypadku wygasłego refresh tokena.
+     */
+    private void handleExpiredRefreshToken(Token token) {
+        if (!token.isMessageIsSent()) {
+            notifyExpiredRefreshToken(token);
+            token.setMessageIsSent(true);
+            tokenRepository.save(token);
+        } else {
+            logger.info("Powiadomienie o wygasłym tokenie dla {} już zostało wysłane.", token.getUsername());
+        }
     }
 
+    /**
+     * Wysyła powiadomienie e-mail o wygasłym refresh tokenie.
+     */
+    private void notifyExpiredRefreshToken(Token token) {
+        String emailContent = String.format(
+                "Twój refresh token dla konta %s wygasł i nie może zostać odświeżony. Zaloguj się ponownie, aby odnowić dostęp.",
+                token.getUsername()
+        );
+
+        try {
+            emailService.sendEmail(
+                    "test@stanislawnowak.pl",
+                    recipientEmail,
+                    "Twój refresh token wygasł",
+                    emailContent
+            );
+
+            logger.info("Powiadomienie e-mail wysłane do: {}", token.getUsername());
+        } catch (Exception e) {
+            logger.error("Błąd podczas wysyłania powiadomienia o wygasłym refresh tokenie: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Wysyła żądanie do API OLX w celu odświeżenia tokena.
+     */
     private Token refreshToken(Token token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // Budowanie ciała żądania
         String body = "grant_type=refresh_token"
                 + "&client_id=" + clientId
                 + "&client_secret=" + clientSecret
@@ -123,12 +167,11 @@ public class TokenService {
                 String newRefreshToken = (String) responseBody.get("refresh_token");
                 int expiresIn = (int) responseBody.get("expires_in");
 
-                // Aktualizacja tokenu
                 token.setAccessToken(newAccessToken);
                 token.setRefreshToken(newRefreshToken);
                 token.setExpiration(LocalDateTime.now().plusSeconds(expiresIn));
 
-                return token; // Zwróć zaktualizowany token
+                return token;
             } else {
                 logger.error("Failed to refresh token. Response: {}", response.getBody());
                 return null;
