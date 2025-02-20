@@ -30,7 +30,7 @@ spring:
   # Konfiguracja Hibernate i JPA
   jpa:
     hibernate:
-      ddl-auto: none # Nie zmieniaj schematu w środowisku produkcyjnym
+      ddl-auto: update # Nie zmieniaj schematu w środowisku produkcyjnym
     show-sql: false
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
