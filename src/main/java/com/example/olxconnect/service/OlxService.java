@@ -114,7 +114,8 @@ public class OlxService {
                     logger.debug("Token dostępu: {}", accessToken);
 
                     // Pobranie nazwy użytkownika
-                    String username = fetchUsername(accessToken);
+                    String username = fetchUsername(accessToken); //Pobieranie nazwy uzytownia
+                    String email = fetchEmail(accessToken); //Pobieranie maila
 
                     // Sprawdzenie, czy użytkownik już istnieje
                     if (tokenRepository.existsByRefreshToken(refreshToken)) {
@@ -126,7 +127,7 @@ public class OlxService {
 
                     // Zapisanie tokena w bazie danych
                     LocalDateTime creationDate = LocalDateTime.now();
-                    Token token = new Token(accessToken, refreshToken, expiration, username,creationDate);
+                    Token token = new Token(accessToken, refreshToken, expiration, username,creationDate,email);
                     tokenRepository.save(token);
 
                     return CompletableFuture.completedFuture(ResponseEntity.ok("Token i użytkownik zapisani."));
@@ -143,6 +144,7 @@ public class OlxService {
     }
 
     public String fetchUsername(String accessToken) {
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -199,6 +201,60 @@ public class OlxService {
         }
     }
 
+    public String fetchEmail(String accessToken) {
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Version", "2");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        String userInfoUrl = "https://www.olx.pl/api/partner/users/me";
+
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    userInfoUrl,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+
+            // Logowanie całej odpowiedzi
+            logger.info("Odpowiedź HTTP: {}", response);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                // Parsowanie JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> body = objectMapper.readValue(response.getBody(), Map.class);
+
+                // Pobranie zagnieżdżonego pola "data"
+                Map<String, Object> data = (Map<String, Object>) body.get("data");
+                if (data == null) {
+                    throw new RuntimeException("Pole 'data' nie istnieje w odpowiedzi: " + body);
+                }
+
+
+                String email = (String) data.get("email");
+                if (email != null && !email.isEmpty()) {
+                    return email;
+                }
+
+                throw new RuntimeException("Pole 'email' nie istnieje w odpowiedzi: " + data);
+
+            } else {
+                throw new RuntimeException("Niepoprawny kod odpowiedzi: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("Błąd HTTP w fetchUsername: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Błąd HTTP podczas pobierania emaila użytkownika: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Ogólny błąd w fetchUsername: ", e);
+            throw new RuntimeException("Nie udało się pobrać emaila użytkownika z OLX API.", e);
+        }
+
+    }
 
     public List<ThreadResponseDto> fetchThreads(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();

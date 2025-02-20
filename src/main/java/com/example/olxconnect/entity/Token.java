@@ -31,18 +31,22 @@ public class Token {
     @Column(name = "message_is_sent")
     private boolean messageIsSent = false;
 
+    @Column(unique = true)
+    private String email;
+
     @OneToMany(mappedBy = "token", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Advert> adverts = new ArrayList<>(); // Lista reklam przypisanych do tego tokena
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ThreadResponse> threads = new ArrayList<>();
 
-    public Token(String accessToken, String refreshToken, LocalDateTime expiration, String username, LocalDateTime created) {
+    public Token(String accessToken, String refreshToken, LocalDateTime expiration, String username, LocalDateTime created, String email) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiration = expiration;
         this.username = username;
         this.created = created;
+        this.email = email;
     }
 }
 
