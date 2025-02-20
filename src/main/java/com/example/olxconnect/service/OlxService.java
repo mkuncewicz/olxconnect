@@ -74,6 +74,9 @@ public class OlxService {
     @Autowired
     private NewMessageService newMessageService;
 
+    @Autowired
+    private TokenService tokenService;
+
     public String getAuthorizationUrl() {
         return String.format(
                 "%s?client_id=%s&response_type=code&state=%s&scope=%s&redirect_uri=%s",
@@ -369,11 +372,10 @@ public class OlxService {
     @Scheduled(fixedRate = 60000) // Uruchamianie co 60 sekund
     public void checkAndNotifyNewMessages() {
         logger.info("checkAndNotifyNewMessages użyto");
-        logger.info(LocalDateTime.now().toString()); //Do usuniecia wyswietlenie daty serwera
+        logger.info(LocalDateTime.now().toString()); // Do usuniecia wyswietlenie daty serwera
 
         // Pobranie nowych wiadomości
         List<NewMessageMail> newMessagesList = isNewMessage();
-
         newMessagesList = newMessageService.getDateFromLastMessage(newMessagesList);
 
         if (newMessagesList.isEmpty()) {
@@ -388,18 +390,28 @@ public class OlxService {
         emailContent.append("Masz nowe wiadomości w OLX:\n\n");
 
         for (NewMessageMail newMessage : newMessagesList) {
-            String chatLink = String.format(
+            String chatLinkByRefreshToken = String.format(
                     "https://olxconnector-39418e6199c9.herokuapp.com/chat/byRefreshToken?refreshToken=%s&threadId=%s&userId=%s",
-                    newMessage.getRefreshToken(), // Wykorzystujemy refreshToken zamiast accessToken
+                    newMessage.getRefreshToken(),
+                    newMessage.getThreadId(),
+                    newMessage.getInterlocutorId()
+            );
+
+            String email = tokenService.fetchEmailFromApi(newMessage.getAccToken());
+
+            String chatLinkByEmail = String.format(
+                    "https://olxconnector-39418e6199c9.herokuapp.com/chat/byEmail?email=%s&threadId=%s&userId=%s",
+                    email,
                     newMessage.getThreadId(),
                     newMessage.getInterlocutorId()
             );
 
             emailContent.append(String.format(
-                    "Konto: %s\nTytuł ogłoszenia: %s\nLink do chatu: %s\n\n",
+                    "Konto: %s\nTytuł ogłoszenia: %s\nLink do chatu (przez RefreshToken): %s\nLink do chatu (przez Email): %s\n\n",
                     newMessage.getAccount(),
                     newMessage.getAdvertTitle(),
-                    chatLink
+                    chatLinkByRefreshToken,
+                    chatLinkByEmail
             ));
         }
 

@@ -18,4 +18,6 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     @Query("SELECT t.accessToken FROM Token t WHERE t.refreshToken = :refreshToken")
     String findAccessTokenByRefreshToken(@Param("refreshToken") String refreshToken);
 
+    @Query("SELECT t.accessToken FROM Token t WHERE t.email = :email")
+    String findAccessTokenByEmail(@Param("email") String email);
 }

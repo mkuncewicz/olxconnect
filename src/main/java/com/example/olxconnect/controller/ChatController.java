@@ -94,16 +94,32 @@ public class ChatController {
         return "chat";
     }
 
-    @GetMapping("/byMail")
-    public String chatPageByMail(
-            @RequestParam("mail") String mail,
+    @GetMapping("/byEmail")
+    public String chatPageByEmail(
+            @RequestParam("email") String email,
             @RequestParam("threadId") Long threadId,
             @RequestParam("userId") Long userId,
             Model model) {
 
+            String accessToken = tokenRepository.findAccessTokenByEmail(email);
 
+            if (accessToken == null) {
+                throw new IllegalArgumentException("Invalid email");
+            }
+            // Pobierz dane użytkownika na podstawie accessToken i userId
+            UserDto userDto = userService.getUserById(accessToken, userId);
 
+            // Pobieramy wiadomości z serwisu
+            List<MessageDto> messages = messageService.getMessages(accessToken, threadId);
+            logger.info("Pobrano dane użytkownika: " + userDto);
 
+            String username = userDto.getName();
+
+            // Przekazujemy je do widoku
+            model.addAttribute("chatUserName", username);
+            model.addAttribute("messages", messages);
+            model.addAttribute("token", accessToken); // Przekazujemy accessToken
+            model.addAttribute("threadId", threadId);
 
         return "chat";
     }

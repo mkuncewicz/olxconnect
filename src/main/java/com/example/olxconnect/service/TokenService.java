@@ -2,6 +2,8 @@ package com.example.olxconnect.service;
 
 import com.example.olxconnect.entity.Token;
 import com.example.olxconnect.repository.TokenRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,5 +182,52 @@ public class TokenService {
             logger.error("Error while refreshing token for user: {}", token.getUsername(), e);
             return null;
         }
+    }
+
+    @Transactional
+    public void updateEmailForTokens() {
+        List<Token> tokens = tokenRepository.findAll();
+
+        for (Token token : tokens) {
+            if (token.getAccessToken() != null) {
+                String email = fetchEmailFromApi(token.getAccessToken());
+
+                if (email != null) {
+                    token.setEmail(email);
+                    tokenRepository.save(token);
+                }
+            }
+        }
+    }
+
+    public String fetchEmailFromApi(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Version", "2");
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://www.olx.pl/api/partner/users/me",
+                    HttpMethod.GET,
+                    requestEntity,
+                    String.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), Map.class);
+
+                // Pobranie emaila, jeśli istnieje
+                if (responseBody.containsKey("data")) {
+                    Map<String, Object> data = (Map<String, Object>) responseBody.get("data");
+                    return (String) data.get("email");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Błąd podczas pobierania emaila: " + e.getMessage());
+        }
+        return null; // Zwraca null, jeśli nie udało się pobrać emaila
     }
 }
