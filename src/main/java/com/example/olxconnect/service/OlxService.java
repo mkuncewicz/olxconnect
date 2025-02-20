@@ -246,9 +246,9 @@ public class OlxService {
         List<NewMessageMail> newMessagesList = new ArrayList<>(); // Lista nowych wiadomości
 
         for (Token token : tokenList) {
-            String accessToken = token.getAccessToken(); // Pobierz access token użytkownika
-            List<ThreadResponse> tokenThreadsDB = threadResponseService.findAllByOwner(token); // Pobierz wątki z bazy dla tego tokena
-            List<ThreadResponseDto> threadsFromAPI = fetchThreads(accessToken); // Pobierz wątki z OLX API
+            String accessToken = token.getAccessToken();
+            List<ThreadResponse> tokenThreadsDB = threadResponseService.findAllByOwner(token);
+            List<ThreadResponseDto> threadsFromAPI = fetchThreads(accessToken);
 
             for (ThreadResponseDto threadDto : threadsFromAPI) {
                 ThreadResponse matchingThread = tokenThreadsDB.stream()
@@ -257,33 +257,20 @@ public class OlxService {
                         .orElse(null);
 
                 if (matchingThread == null) {
-                    // Nowy wątek
+                    // Nowy wątek – zapisujemy do bazy i dodajemy do listy powiadomień
                     ThreadResponse newThread = threadMapper.toEntity(threadDto, token);
                     threadResponseService.save(newThread);
-
-                    Long advertId = newThread.getAdvertId();
-                    String advertTitle = advertService.getTitleAdvert(advertId);
-                    String advertUrl = advertService.getAdvertUrl(advertId);
-
-                    newMessagesList.add(new NewMessageMail(
-                            token.getUsername(),
-                            advertId,
-                            advertTitle,
-                            advertUrl,
-                            threadDto.getCreatedAt(),
-                            accessToken,
-                            token.getRefreshToken(),
-                            threadDto.getId(),
-                            threadDto.getInterlocutorId()
-                    ));
+                    newMessagesList.add(createNewMessageMail(token, newThread, threadDto, accessToken));
                 } else {
                     boolean isUpdated = false;
 
-                    if (!matchingThread.getUnreadCount().equals(threadDto.getUnreadCount())) {
+                    // Aktualizacja liczby nieprzeczytanych wiadomości, ale tylko jeśli się zwiększyła
+                    if (threadDto.getUnreadCount() > matchingThread.getUnreadCount()) {
                         matchingThread.setUnreadCount(threadDto.getUnreadCount());
                         isUpdated = true;
                     }
 
+                    // Aktualizacja całkowitej liczby wiadomości, jeśli się zmieniła
                     if (!matchingThread.getTotalCount().equals(threadDto.getTotalCount())) {
                         matchingThread.setTotalCount(threadDto.getTotalCount());
                         isUpdated = true;
@@ -291,34 +278,35 @@ public class OlxService {
 
                     if (isUpdated) {
                         threadResponseService.save(matchingThread);
-
-                        Long advertId = matchingThread.getAdvertId();
-                        String advertTitle = advertService.getTitleAdvert(advertId);
-                        String advertUrl = advertService.getAdvertUrl(advertId);
-
-                        newMessagesList.add(new NewMessageMail(
-                                token.getUsername(),
-                                advertId,
-                                advertTitle,
-                                advertUrl,
-                                threadDto.getCreatedAt(),
-                                accessToken,
-                                token.getRefreshToken(),
-                                threadDto.getId(),
-                                threadDto.getInterlocutorId()
-                        ));
-                    }
-
-                    if (matchingThread.getUnreadCount() > threadDto.getUnreadCount()) {
-                        matchingThread.setUnreadCount(threadDto.getUnreadCount());
-                        threadResponseService.save(matchingThread);
+                        newMessagesList.add(createNewMessageMail(token, matchingThread, threadDto, accessToken));
                     }
                 }
             }
         }
-
-        return newMessagesList; // Zwróć listę nowych wiadomości
+        return newMessagesList;
     }
+
+    /**
+     * Tworzy nowy obiekt NewMessageMail z podanych danych.
+     */
+    private NewMessageMail createNewMessageMail(Token token, ThreadResponse thread, ThreadResponseDto threadDto, String accessToken) {
+        Long advertId = thread.getAdvertId();
+        String advertTitle = advertService.getTitleAdvert(advertId);
+        String advertUrl = advertService.getAdvertUrl(advertId);
+
+        return new NewMessageMail(
+                token.getUsername(),
+                advertId,
+                advertTitle,
+                advertUrl,
+                threadDto.getCreatedAt(),
+                accessToken,
+                token.getRefreshToken(),
+                threadDto.getId(),
+                threadDto.getInterlocutorId()
+        );
+    }
+
 
 
 

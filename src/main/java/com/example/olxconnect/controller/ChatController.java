@@ -94,6 +94,20 @@ public class ChatController {
         return "chat";
     }
 
+    @GetMapping("/byMail")
+    public String chatPageByMail(
+            @RequestParam("mail") String mail,
+            @RequestParam("threadId") Long threadId,
+            @RequestParam("userId") Long userId,
+            Model model) {
+
+
+
+
+
+        return "chat";
+    }
+
     @PostMapping("/sendMessage")
     @ResponseBody
     public ResponseEntity<String> sendMessage(
@@ -104,6 +118,8 @@ public class ChatController {
 
         try {
             messageService.sendMessage(token, threadId, text, attachmentUrls);
+
+            messageService.markThreadAsRead(token, threadId);
 
             ThreadResponseDto threadFromApi = messageService.getThreadFromApi(token, threadId);
             Optional<ThreadResponse> threadFromDB = threadResponseService.findByThreadId(threadId);

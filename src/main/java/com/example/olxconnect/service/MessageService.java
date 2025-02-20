@@ -173,5 +173,26 @@ public class MessageService {
         }
     }
 
+    public void markThreadAsRead(String token, Long threadId) {
+        String url = "https://www.olx.pl/api/partner/threads/" + threadId + "/commands"; //
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("command", "mark-as-read");
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.NO_CONTENT) {
+            logger.info("Wątek ID " + threadId + " oznaczony jako przeczytany.");
+        } else {
+            logger.warn("Nie udało się oznaczyć wątku ID " + threadId + " jako przeczytanego.");
+        }
+    }
 
 }
