@@ -48,7 +48,8 @@ public class ChatHistory {
                 default -> "user";
             };
 
-            addMessage(role, "[" + createdAt + "] " + text);
+            addMessage(role, text);
+
         }
     }
 
