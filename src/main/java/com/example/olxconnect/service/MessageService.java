@@ -42,7 +42,7 @@ public class MessageService {
 
         MessageDto last = messages.get(messages.size() - 1);
 
-        if (last.getType() == "sent"){
+        if (last.getType().equals("received")){
 
             return true;
         }else {
