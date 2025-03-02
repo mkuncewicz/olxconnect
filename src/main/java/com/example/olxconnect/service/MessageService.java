@@ -40,7 +40,7 @@ public class MessageService {
 
         List<MessageDto> messages = getMessages(token, threadId);
 
-        MessageDto last = messages.getLast();
+        MessageDto last = messages.get(messages.size() - 1);
 
         if (last.getType() == "sent"){
 
