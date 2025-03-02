@@ -39,13 +39,13 @@ public class ChatGptService {
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, String>> messages = new ArrayList<>();
 
-        // Dodanie kontekstu asystenta
+        // Dodanie kontekstu asystenta jako wiadomość systemową
         messages.add(Map.of(
                 "role", "system",
                 "content", assistant.getModelForApi()
         ));
 
-        // Usunięcie znaczników czasu z wiadomości
+        // Usunięcie znaczników czasu z wiadomości przed wysłaniem do OpenAI
         List<Map<String, String>> cleanedMessages = chatHistory.getMessages().stream()
                 .map(msg -> Map.of(
                         "role", msg.get("role"),
@@ -74,7 +74,7 @@ public class ChatGptService {
         // Wysyłanie zapytania do OpenAI
         return webClient.post()
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + apiKey) // Ustawienie tokena dynamicznie
+                .header("Authorization", "Bearer " + apiKey) // Dynamiczne ustawienie API Key
                 .bodyValue(jsonRequest)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -92,9 +92,15 @@ public class ChatGptService {
                 return "❌ Brak odpowiedzi z API.";
             }
 
-            return choices.get(0).path("message").path("content").asText();
+            String message = choices.get(0).path("message").path("content").asText();
+
+            // Usunięcie znaczników czasu, jeśli OpenAI zwrócił je w odpowiedzi
+            return message.replaceAll("^\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\] ", "");
+
         } catch (Exception e) {
             return "❌ Błąd przy parsowaniu odpowiedzi API: " + e.getMessage();
         }
     }
+
+}
 }
