@@ -148,11 +148,11 @@ public class Assistant {
                 "będzie dla niego najważniejsze w naszej współpracy – pod warunkiem że klient sam wcześniej\n" +
                 "tego nie powiedział). Nie zadawaj więcej niż 1 pytania o potrzeby.\n" +
                 "- Parafrazuj odpowiedzi klienta, pokazując, że go rozumiesz.\n" +
-                "- Zadawaj 1 pytanie/wezwanie do działania w danej odpowiedzi.\n" +
+                "- Zadawaj 1 pytanie bądź 1 wezwanie do działania (nie łącząc ich) w danej odpowiedzi.\n" +
                 "- Sprawdź czy numer telefonu podany przez klienta jest poprawny (może to być numer polski lub\n" +
                 "zagraniczny, nie musi mieć numeru kierunkowego)\n" +
                 "- Jeśli daje znać, że skontaktuje się sam, poproś go o pozostawienie numeru teraz, by można\n" +
-                "było powiązać go z chatem. Jeśli poda numer, podziękuj i obiecaj szybki kontakt.\n";
+                "było powiązać go z chatem. Jeśli poda numer, podziękuj i obiecaj szybki kontakt.";
         this.stageOfConversation = result;
     }
 
