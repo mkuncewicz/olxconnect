@@ -421,13 +421,13 @@ public class OlxService {
         }
 
         //Odpowiedz chatuGPT
-        for (NewMessageMail newMessage : newMessagesList) {
-
-            String accToken = newMessage.getAccToken();
-            Long threadId = newMessage.getThreadId();
-
-            assistanRespondeService.answerMessage(accToken,threadId);
-        }
+//        for (NewMessageMail newMessage : newMessagesList) {
+//
+//            String accToken = newMessage.getAccToken();
+//            Long threadId = newMessage.getThreadId();
+//
+//            assistanRespondeService.answerMessage(accToken,threadId);
+//        }
 
         // Wysyłanie jednego e-maila z całą zawartością listy
         logger.info("Próba wysłania maila");
