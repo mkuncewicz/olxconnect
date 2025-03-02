@@ -52,6 +52,12 @@ mailersend:
 notification:
   recipient-email: ${NOTIFICATION_RECIPIENT_EMAIL} # Adres e-mail docelowy (Heroku Config Vars)
 
+# GPT
+chatgpt:
+  api:
+    key: ${CHATGPT_API_KEY} # Klucz API OpenAI pobierany ze zmiennej środowiskowej
+
+
 # Ustawienia logowania
 logging:
   level:
@@ -59,3 +65,4 @@ logging:
     org.springframework:
       mail: TRACE
       boot.autoconfigure.mail: TRACE
+

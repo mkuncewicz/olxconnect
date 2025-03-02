@@ -35,6 +35,22 @@ public class MessageService {
         this.objectMapper = objectMapper;
     }
 
+
+    public boolean lastMessageIsFromUser(String token, Long threadId) {
+
+        List<MessageDto> messages = getMessages(token, threadId);
+
+        MessageDto last = messages.getLast();
+
+        if (last.getType() == "sent"){
+
+            return true;
+        }else {
+
+            return false;
+        }
+    }
+
     public List<MessageDto> getMessages(String token, Long threadId) {
         String url = "https://www.olx.pl/api/partner/threads/" + threadId + "/messages";
 

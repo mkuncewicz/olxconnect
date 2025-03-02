@@ -1,5 +1,7 @@
 package com.example.olxconnect.service;
 
+import com.example.olxconnect.chatgpt.AssistanRespondeService;
+import com.example.olxconnect.chatgpt.Assistant;
 import com.example.olxconnect.dto.ThreadResponseDto;
 import com.example.olxconnect.entity.ThreadResponse;
 import com.example.olxconnect.entity.Token;
@@ -76,6 +78,9 @@ public class OlxService {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private AssistanRespondeService assistanRespondeService;
 
     public String getAuthorizationUrl() {
         return String.format(
@@ -413,6 +418,15 @@ public class OlxService {
                     chatLinkByRefreshToken,
                     chatLinkByEmail
             ));
+        }
+
+        //Odpowiedz chatuGPT
+        for (NewMessageMail newMessage : newMessagesList) {
+
+            String accToken = newMessage.getAccToken();
+            Long threadId = newMessage.getThreadId();
+
+            assistanRespondeService.answerMessage(accToken,threadId);
         }
 
         // Wysyłanie jednego e-maila z całą zawartością listy
