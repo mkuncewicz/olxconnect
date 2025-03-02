@@ -61,7 +61,7 @@ public class ChatHistory {
                 default -> "user";
             };
 
-            addMessage(role, "[" + message.getCreatedAt() + "] " + message.getText());
+            addMessage(role, message.getText());
         }
     }
 
