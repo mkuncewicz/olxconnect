@@ -106,6 +106,8 @@ public class ChatController {
             if (accessToken == null) {
                 throw new IllegalArgumentException("Invalid email");
             }
+
+            logger.info("accesToken z maila: " + accessToken);
             // Pobierz dane użytkownika na podstawie accessToken i userId
             UserDto userDto = userService.getUserById(accessToken, userId);
 
