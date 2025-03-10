@@ -60,7 +60,7 @@ public class TokenService {
     /**
      * Harmonogram odświeżania tokenów (co 30 minut).
      */
-    @Scheduled(fixedRate = 1800000) // Co 30 minut
+    @Scheduled(fixedRate = 360000)
     public void refreshTokens() {
         List<Token> tokens = tokenRepository.findAll();
 

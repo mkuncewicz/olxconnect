@@ -82,6 +82,7 @@ public class OlxService {
     @Autowired
     private AssistanRespondeService assistanRespondeService;
 
+
     public String getAuthorizationUrl() {
         return String.format(
                 "%s?client_id=%s&response_type=code&state=%s&scope=%s&redirect_uri=%s",
@@ -150,6 +151,7 @@ public class OlxService {
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Wystąpił błąd podczas generowania tokena."));
         }
     }
+    
 
     public String fetchUsername(String accessToken) {
 
@@ -341,6 +343,10 @@ public class OlxService {
                     }
 
                     if (isUpdated) {
+
+                        matchingThread.setUnreadCount(threadDto.getUnreadCount());
+                        matchingThread.setTotalCount(threadDto.getTotalCount());
+
                         threadResponseService.save(matchingThread);
                         newMessagesList.add(createNewMessageMail(token, matchingThread, threadDto, accessToken));
                     }
