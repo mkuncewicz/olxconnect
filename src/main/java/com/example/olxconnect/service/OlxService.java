@@ -82,6 +82,8 @@ public class OlxService {
     @Autowired
     private AssistanRespondeService assistanRespondeService;
 
+    @Autowired
+    private PhoneNumberService phoneNumberService;
 
     public String getAuthorizationUrl() {
         return String.format(
@@ -449,5 +451,49 @@ public class OlxService {
         } catch (Exception e) {
             logger.error("Błąd podczas wysyłania zbiorczego e-maila: {}", e.getMessage());
         }
+
+
+        List<NewMessageMail> phoneInThread = sendMailAboutPhoneInThread(newMessagesList);
+
+        if (!phoneInThread.isEmpty()) {
+            for (NewMessageMail newMessage : phoneInThread) {
+                String email = tokenService.fetchEmailFromApi(newMessage.getAccToken());
+
+            String chatLinkByEmail = String.format(
+                    "https://olxconnector-39418e6199c9.herokuapp.com/chat/byEmail?email=%s&threadId=%s&userId=%s",
+                    email,
+                    newMessage.getThreadId(),
+                    newMessage.getInterlocutorId()
+            );
+
+            emailContent.append(String.format(
+                    "Konto: %s\nTytuł ogłoszenia: %s\nLink do chatu (przez Email): %s\n\n",
+                    newMessage.getAccount(),
+                    newMessage.getAdvertTitle(),
+                    chatLinkByEmail
+            ));
+
+
+            try {
+                emailService.sendEmail(
+                        "test@stanislawnowak.pl", // Nadawca (ustawiony jako zweryfikowany w MailerSend)
+                        recipientEmail, // Odbiorca
+                        "Nowy numer telefonu!",
+                        emailContent.toString()
+                );
+            }catch (Exception e){
+                logger.error("Blad podczas wysylania maila z telefonami");
+            }
+        }
+        }
+    }
+
+
+
+    public List<NewMessageMail> sendMailAboutPhoneInThread(List<NewMessageMail> newMessageList){
+
+        List<NewMessageMail> listWithNumber = phoneNumberService.getListWithNumber(newMessageList);
+
+        return listWithNumber;
     }
 }

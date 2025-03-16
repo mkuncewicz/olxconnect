@@ -37,7 +37,7 @@ public class PhoneNumberService {
     }
 
 
-    public boolean checkThreadForPhoneNumberr(String token, Long threadID){
+    private boolean checkThreadForPhoneNumberr(String token, Long threadID){
 
         List<MessageDto> messages = messageService.getMessages(token, threadID);
 
@@ -47,7 +47,7 @@ public class PhoneNumberService {
 
 
 
-    public boolean isPhoneNumberInTheMessage(List<MessageDto> messageDtoList) {
+    private boolean isPhoneNumberInTheMessage(List<MessageDto> messageDtoList) {
         if (messageDtoList == null || messageDtoList.isEmpty()) {
             return false;
         }
