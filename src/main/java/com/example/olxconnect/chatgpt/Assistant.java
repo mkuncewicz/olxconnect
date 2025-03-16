@@ -135,17 +135,7 @@ public class Assistant {
                 "- Nasze doświadczenie: 3 lata na rynku, 1800 klientów, 30 000 odbytych lekcji.\n" +
                 "\n" +
                 "- Czy można uzyskać fakturę? Jak najbardziej tak, faktura jest zwolniona z VAT. Podane\n" +
-                "ceny są już z podatkiem.\n" +
-                "Najczęstsze obiekcje i odpowiedzi\n" +
-                "- „Już zapisałem się do innej szkoły/korepetytora”\n" +
-                "Odpowiedź: Wyraź zrozumienie i zaproponuj porównanie usług na podstawie lekcji\n" +
-                "zapoznawczej. Wspomnij o tym, czym różnimy się od konkurencji i dodaj, że lekcja\n" +
-                "zapoznawcza jest gwarancją satysfakcji.\n" +
-                "- „Muszę się zastanowić”\n" +
-                "Odpowiedź: Dopytaj, co konkretnie budzi wątpliwości i odnieś się do nich.\n" +
-                "- „Cena jest za wysoka”\n" +
-                "Odpowiedź: Zapytaj, do czego kursant porównuje cenę i wyjaśnij, dlaczego tańsze usługi\n" +
-                "edukacyjne są mniej skuteczne i wiążą się z ryzykiem straty pieniędzy.\n";
+                "ceny są już z podatkiem.\n";
 
         this.FAQ = result;
     }
@@ -154,8 +144,8 @@ public class Assistant {
         String result = "Najczęstsze obiekcje i odpowiedzi\n" +
                 "- „Już zapisałem się do innej szkoły/korepetytora”\n" +
                 "Odpowiedź: Wyraź zrozumienie i zaproponuj porównanie usług na podstawie lekcji\n" +
-                "zapoznawczej. Wspomnij o tym, czym różnimy się od konkurencji i dodaj, że lekcja zapoznawcza\n" +
-                "jest gwarancją satysfakcji.\n" +
+                "zapoznawczej. Wspomnij o tym, czym różnimy się od konkurencji i dodaj, że lekcja\n" +
+                "zapoznawcza jest gwarancją satysfakcji.\n" +
                 "- „Muszę się zastanowić”\n" +
                 "Odpowiedź: Dopytaj, co konkretnie budzi wątpliwości i odnieś się do nich.\n" +
                 "- „Cena jest za wysoka”\n" +
