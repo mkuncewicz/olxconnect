@@ -136,7 +136,7 @@ public class Assistant {
                 "\n" +
                 "- Czy można uzyskać fakturę? Jak najbardziej tak, faktura jest zwolniona z VAT. Podane\n" +
                 "ceny są już z podatkiem.\n"
-                +"Przyjmujemy uczniów w wieku od 12 roku życia.\n";
+                +"-Przyjmujemy uczniów w wieku od 12 roku życia.\n";
 
         this.FAQ = result;
     }
